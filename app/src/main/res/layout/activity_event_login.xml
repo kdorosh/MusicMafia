@@ -11,6 +11,7 @@
     tools:context="mattnkev.cs.tufts.edu.musicmafia.EventLoginActivity">
 
     <!-- Login progress -->
+
     <ProgressBar
         android:id="@+id/login_progress"
         style="?android:attr/progressBarStyleLarge"
@@ -25,7 +26,7 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/email_login_form"
+            android:id="@+id/event_login_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -35,7 +36,7 @@
                 android:layout_height="wrap_content">
 
                 <AutoCompleteTextView
-                    android:id="@+id/email"
+                    android:id="@+id/event_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
@@ -63,8 +64,25 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <RadioGroup android:id="@+id/userType"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:checkedButton="@+id/radio_userGuest" >
+                <RadioButton android:id="@+id/radio_userGuest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_guest"
+                    />
+                <RadioButton android:id="@+id/radio_userHost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_host"
+                    />
+            </RadioGroup>
+
             <Button
-                android:id="@+id/email_sign_in_button"
+                android:id="@+id/validate_credentials_button"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -74,4 +92,5 @@
 
         </LinearLayout>
     </ScrollView>
+
 </LinearLayout>

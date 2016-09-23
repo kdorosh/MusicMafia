@@ -28,6 +28,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +38,7 @@ import java.util.List;
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
- * A login screen that offers login via email/password.
+ * A login screen that offers login via event name/event password.
  */
 public class EventLoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
@@ -57,7 +60,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
     private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private AutoCompleteTextView mEventView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -67,7 +70,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_login);
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEventView = (AutoCompleteTextView) findViewById(R.id.event_name);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -82,8 +85,8 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button validateCredentialsButton = (Button) findViewById(R.id.validate_credentials_button);
+        validateCredentialsButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -92,6 +95,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
     }
 
     private void populateAutoComplete() {
@@ -110,7 +114,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             return true;
         }
         if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
+            Snackbar.make(mEventView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
                     .setAction(android.R.string.ok, new View.OnClickListener() {
                         @Override
                         @TargetApi(Build.VERSION_CODES.M)
@@ -140,7 +144,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
 
     /**
      * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
+     * If there are form errors (invalid event name, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
@@ -149,12 +153,25 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
         }
 
         // Reset errors.
-        mEmailView.setError(null);
+        mEventView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String eventName = mEventView.getText().toString();
         String password = mPasswordView.getText().toString();
+
+        RadioGroup radioGroup;
+        RadioButton radioButton;
+        radioGroup = (RadioGroup) findViewById(R.id.userType);
+        // get selected radio button from radioGroup
+        int selectedId = radioGroup.getCheckedRadioButtonId();
+
+        // find the radiobutton by returned id
+        radioButton = (RadioButton) findViewById(selectedId);
+
+        Toast.makeText(EventLoginActivity.this,
+                radioButton.getText(), Toast.LENGTH_SHORT).show();
+
 
         boolean cancel = false;
         View focusView = null;
@@ -166,14 +183,14 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             cancel = true;
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+        // Check for a valid eventName address.
+        if (TextUtils.isEmpty(eventName)) {
+            mEventView.setError(getString(R.string.error_field_required));
+            focusView = mEventView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+        } else if (!isEventNameValid(eventName)) {
+            mEventView.setError(getString(R.string.error_invalid_eventName));
+            focusView = mEventView;
             cancel = true;
         }
 
@@ -185,14 +202,18 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(eventName, password);
             mAuthTask.execute((Void) null);
+
+            //upon success, switch activities
+            setContentView(R.layout.activity_spotify_sign_in);
+
         }
     }
 
-    private boolean isEmailValid(String email) {
+    private boolean isEventNameValid(String eventName) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return eventName.length() > 4;
     }
 
     private boolean isPasswordValid(String password) {
@@ -276,7 +297,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
                 new ArrayAdapter<>(EventLoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        mEmailView.setAdapter(adapter);
+        mEventView.setAdapter(adapter);
     }
 
 
