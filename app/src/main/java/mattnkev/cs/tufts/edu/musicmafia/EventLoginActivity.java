@@ -3,6 +3,7 @@ package mattnkev.cs.tufts.edu.musicmafia;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -206,8 +207,8 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             mAuthTask.execute((Void) null);
 
             //upon success, switch activities
-            setContentView(R.layout.activity_spotify_sign_in);
-
+            Intent intent = new Intent(this, PlaylistMaking.class);
+            startActivity(intent);
         }
     }
 

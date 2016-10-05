@@ -7,6 +7,12 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="mattnkev.cs.tufts.edu.musicmafia.SpotifySignIn">
+    tools:context="mattnkev.cs.tufts.edu.musicmafia.PlaylistMaking">
 
+    <ListView
+        android:id="@+id/main_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </RelativeLayout>
+
+

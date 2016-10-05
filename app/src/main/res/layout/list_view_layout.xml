@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="6dip"
+    android:background="@color/darkGray"
+    >
+
+    <ImageView
+        android:id="@+id/down_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="6dip"
+        android:layout_marginEnd="6dip"
+        android:contentDescription="@string/down_vote_button" />
+
+    <TextView
+        android:id="@+id/num_votes"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/down_arrow"
+        android:layout_toStartOf="@id/down_arrow"
+        android:contentDescription="@string/number_up_votes"
+        android:text="@string/default_num_votes" />
+
+    <ImageView
+        android:id="@+id/up_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/down_arrow"
+        android:layout_toStartOf="@id/down_arrow"
+        android:layout_marginRight="6dip"
+        android:layout_marginEnd="6dip"
+        android:contentDescription="@string/up_vote_button" />
+
+    <TextView
+        android:id="@+id/secondLine"
+        android:layout_width="fill_parent"
+        android:layout_height="26dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:ellipsize="marquee"
+        android:maxLines="1"
+        android:textSize="12sp"
+        android:textColor="@color/colorPrimary"
+        android:contentDescription="@string/artist_name"/>
+
+    <TextView
+        android:id="@+id/firstLine"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/secondLine"
+        android:layout_toLeftOf="@id/up_arrow"
+        android:layout_toStartOf="@id/up_arrow"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary"
+        android:contentDescription="@string/song_name"/>
+
+
+
+
+
+</RelativeLayout>

@@ -15,5 +15,11 @@
     </string>
     <string name="prompt_guest">Guest</string>
     <string name="prompt_host">Host</string>
-    <string name="btn_display">DisplayButton</string>
+    <string name="btn_display">Display Button</string>
+    <string name="up_vote_button">Up Vote Button</string>
+    <string name="down_vote_button">Down Vote Button</string>
+    <string name="song_name">Song Name</string>
+    <string name="artist_name">Artist Name</string>
+    <string name="number_up_votes">Number of Up Votes</string>
+    <string name="default_num_votes">0</string>
 </resources>
