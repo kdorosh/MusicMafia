@@ -71,6 +71,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_login);
         // Set up the login form.
+
         mEventView = (AutoCompleteTextView) findViewById(R.id.event_name);
         populateAutoComplete();
 
@@ -208,6 +209,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
 
             //upon success, switch activities
             Intent intent = new Intent(this, PlaylistMaking.class);
+            //Intent intent = new Intent(this, SpotifyTest.class);
             startActivity(intent);
         }
     }
