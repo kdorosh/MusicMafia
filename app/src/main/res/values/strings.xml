@@ -22,4 +22,6 @@
     <string name="artist_name">Artist Name</string>
     <string name="number_up_votes">Number of Up Votes</string>
     <string name="default_num_votes">0</string>
+    <string name="app_label">Music Mafia</string>
+    <string name="search_hint">Search for song</string>
 </resources>

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -23,6 +22,17 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 public class SpotifyTest extends Activity implements
         SpotifyPlayer.NotificationCallback, ConnectionStateCallback
 {
+
+    public SpotifyTest(){
+        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
+                AuthenticationResponse.Type.TOKEN,
+                REDIRECT_URI);
+        builder.setScopes(new String[]{"user-read-private", "streaming"});
+        AuthenticationRequest request = builder.build();
+
+        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+    }
+
 
     // TODO: Replace with your client ID
     private static final String CLIENT_ID = "fe81735360154ee7921c12078d656a97";

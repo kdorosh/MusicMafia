@@ -25,7 +25,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".PlaylistMaking"
-            android:label="Event Playlist"></activity>
+            android:label="Event Playlist">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/search_config"/>
+        </activity>
         <activity android:name=".SpotifyTest"></activity>
         <!-- Needed for LoginActivity to work -->
         <activity
