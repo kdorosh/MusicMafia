@@ -69,9 +69,4 @@
         android:textSize="16sp"
         android:textColor="@color/colorPrimary"
         android:contentDescription="@string/song_name"/>
-
-
-
-
-
 </RelativeLayout>

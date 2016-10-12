@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -20,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,8 +35,25 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -168,13 +187,6 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
         // get selected radio button from radioGroup
         int selectedId = radioGroup.getCheckedRadioButtonId();
 
-        // find the radiobutton by returned id
-        radioButton = (RadioButton) findViewById(selectedId);
-
-        Toast.makeText(EventLoginActivity.this,
-                radioButton.getText(), Toast.LENGTH_SHORT).show();
-
-
         boolean cancel = false;
         View focusView = null;
 
@@ -207,10 +219,82 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             mAuthTask = new UserLoginTask(eventName, password);
             mAuthTask.execute((Void) null);
 
+            // find the radiobutton by returned id
+            radioButton = (RadioButton) findViewById(selectedId);
+
+            if(radioButton.getText().equals("Guest")){
+                //validateGuestUser();
+            } else {
+                //validateHostUser(eventName, password);
+            }
+
             //upon success, switch activities
             Intent intent = new Intent(this, PlaylistMaking.class);
-            //Intent intent = new Intent(this, SpotifyTest.class);
+            intent.putExtra("USER_TYPE", radioButton.getText());
             startActivity(intent);
+        }
+    }
+
+    private boolean validateHostUser(final String eventName, final String password) {
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    JSONObject postReqJSON = new JSONObject();
+                    postReqJSON.put("EventName", eventName);
+                    postReqJSON.put("password", password);
+
+                    URL url = new URL("http://52.40.236.184:5000/create");
+                    HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setRequestProperty("Accept", "application/json");
+
+                    OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+                    wr.write(postReqJSON.toString());
+                    wr.flush();
+
+                    Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+                    StringBuilder sb = new StringBuilder();
+                    for (int c; (c = in.read()) >= 0;)
+                        sb.append((char)c);
+                    String response = sb.toString();
+                    JSONObject data = new JSONObject(response);
+                    JSONObject resp = data.getJSONObject("Status");
+                    if(resp.toString().equals("OK")){
+                        changeActivity("Host");
+                    }
+                    //JSONArray entries = tracks.getJSONArray("items");
+
+                } catch (Exception ex){
+                    Log.d("MainActivity", ex.toString());
+                }
+            }
+        });
+        thread.start();
+
+        return true;
+    }
+
+    private void changeActivity(String user_type){
+        Intent intent = new Intent(this, PlaylistMaking.class);
+        intent.putExtra("USER_TYPE", user_type);
+        startActivity(intent);
+    }
+
+    private static String readStream(InputStream is) {
+        try {
+            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+            int i = is.read();
+            while(i != -1) {
+                bo.write(i);
+                i = is.read();
+            }
+            return bo.toString();
+        } catch (IOException e) {
+            return "";
         }
     }
 

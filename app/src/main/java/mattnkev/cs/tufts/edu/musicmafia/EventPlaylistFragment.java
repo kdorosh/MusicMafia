@@ -1,7 +1,9 @@
 package mattnkev.cs.tufts.edu.musicmafia;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -9,12 +11,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +42,7 @@ import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
-public class PlaylistMaking extends AppCompatActivity implements
+public class EventPlaylistFragment extends Fragment implements
         SpotifyPlayer.NotificationCallback, ConnectionStateCallback
 {
     private static final String CLIENT_ID = "fe81735360154ee7921c12078d656a97";
@@ -54,12 +58,12 @@ public class PlaylistMaking extends AppCompatActivity implements
     private static final int REQUEST_CODE = 1337;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playlist_making);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        FragmentActivity faActivity  = (FragmentActivity)    super.getActivity();
+        RelativeLayout rlLayout    = (RelativeLayout)    inflater.inflate(R.layout.activity_playlist_making, container, false);
 
-        /*boolean isHost = true;
-        Bundle extras = getIntent().getExtras();
+        boolean isHost = true;
+        Bundle extras = super.getActivity().getIntent().getExtras();
         if (extras != null) {
             String value = extras.getString("USER_TYPE");
             //The key argument here must match that used in the other activity
@@ -74,10 +78,10 @@ public class PlaylistMaking extends AppCompatActivity implements
             builder.setScopes(new String[]{"user-read-private", "streaming"});
             AuthenticationRequest request = builder.build();
 
-            AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+            AuthenticationClient.openLoginActivity(super.getActivity(), REQUEST_CODE, request);
         }
 
-        mListView = (ListView)findViewById(R.id.main_list_view);
+        mListView = (ListView)rlLayout.findViewById(R.id.main_list_view);
 
         String[] vals = new String[] { "Android", "iPhoneReallyReallyReallyLongName", "WindowsMobile",
                 "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
@@ -87,7 +91,7 @@ public class PlaylistMaking extends AppCompatActivity implements
         for(int i=0; i<vals.length;i++)
             mListViewVals.add(vals[i]);
 
-        mAdapter = new MySimpleArrayAdapter(this.getApplicationContext(),
+        mAdapter = new MySimpleArrayAdapter(super.getActivity().getApplicationContext(),
                 mListViewVals);
 
         try {
@@ -95,25 +99,25 @@ public class PlaylistMaking extends AppCompatActivity implements
         }
         catch (NullPointerException ex){
             Log.e("MainActivity", ex.toString());
-        }*/
-
+        }
+        return rlLayout;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
+                Config playerConfig = new Config(super.getActivity(), response.getAccessToken(), CLIENT_ID);
                 Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
                     @Override
                     public void onInitialized(SpotifyPlayer spotifyPlayer) {
                         mPlayer = spotifyPlayer;
-                        mPlayer.addConnectionStateCallback(mattnkev.cs.tufts.edu.musicmafia.PlaylistMaking.this);
-                        mPlayer.addNotificationCallback(mattnkev.cs.tufts.edu.musicmafia.PlaylistMaking.this);
+                        mPlayer.addConnectionStateCallback(mattnkev.cs.tufts.edu.musicmafia.EventPlaylistFragment.this);
+                        mPlayer.addNotificationCallback(mattnkev.cs.tufts.edu.musicmafia.EventPlaylistFragment.this);
                     }
 
                     @Override
@@ -126,7 +130,7 @@ public class PlaylistMaking extends AppCompatActivity implements
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         Spotify.destroyPlayer(this);
         super.onDestroy();
     }
@@ -185,6 +189,7 @@ public class PlaylistMaking extends AppCompatActivity implements
 
     private void spotifySearch(final String query){
 
+        final Activity activity = super.getActivity();
         Thread thread = new Thread(new Runnable() {
 
             @Override
@@ -215,7 +220,7 @@ public class PlaylistMaking extends AppCompatActivity implements
                             name = entry.getString("name");
                             mListViewVals.add(name);
                         }
-                        runOnUiThread(new Runnable() {
+                        activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 mAdapter.updateVals(mListViewVals);
@@ -256,9 +261,9 @@ public class PlaylistMaking extends AppCompatActivity implements
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_playlists, menu);
+        super.getActivity().getMenuInflater().inflate(R.menu.menu_playlists, menu);
 
         MenuItem searchItem = menu.findItem(R.id.search);
         android.support.v7.widget.SearchView searchView = (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(searchItem);
@@ -275,7 +280,6 @@ public class PlaylistMaking extends AppCompatActivity implements
             }
         });
 
-        return true;
     }
 
     private class MySimpleArrayAdapter extends ArrayAdapter<String> {
