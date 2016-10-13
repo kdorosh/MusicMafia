@@ -35,9 +35,13 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -59,28 +63,28 @@ public class EventPlaylistFragment extends Fragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        FragmentActivity faActivity  = (FragmentActivity)    super.getActivity();
-        RelativeLayout rlLayout    = (RelativeLayout)    inflater.inflate(R.layout.activity_playlist_making, container, false);
-
-        boolean isHost = true;
-        Bundle extras = super.getActivity().getIntent().getExtras();
-        if (extras != null) {
-            String value = extras.getString("USER_TYPE");
-            //The key argument here must match that used in the other activity
-            if (value.equals("Guest"))
-                isHost = false;
-        }
-
-        if (isHost) {
-            AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
-                    AuthenticationResponse.Type.TOKEN,
-                    REDIRECT_URI);
-            builder.setScopes(new String[]{"user-read-private", "streaming"});
-            AuthenticationRequest request = builder.build();
-
-            AuthenticationClient.openLoginActivity(super.getActivity(), REQUEST_CODE, request);
-        }
-
+        FragmentActivity faActivity  =  super.getActivity();
+        RelativeLayout   rlLayout    = (RelativeLayout)    inflater.inflate(R.layout.event_playlist_layout, container, false);
+//
+//        boolean isHost = true;
+//        Bundle extras = super.getActivity().getIntent().getExtras();
+//        if (extras != null) {
+//            String value = extras.getString("USER_TYPE");
+//            //The key argument here must match that used in the other activity
+//            if (value.equals("Guest"))
+//                isHost = false;
+//        }
+//
+//        if (isHost) {
+//            AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
+//                    AuthenticationResponse.Type.TOKEN,
+//                    REDIRECT_URI);
+//            builder.setScopes(new String[]{"user-read-private", "streaming"});
+//            AuthenticationRequest request = builder.build();
+//
+//            AuthenticationClient.openLoginActivity(super.getActivity(), REQUEST_CODE, request);
+//        }
+//
         mListView = (ListView)rlLayout.findViewById(R.id.main_list_view);
 
         String[] vals = new String[] { "Android", "iPhoneReallyReallyReallyLongName", "WindowsMobile",
@@ -91,7 +95,7 @@ public class EventPlaylistFragment extends Fragment implements
         for(int i=0; i<vals.length;i++)
             mListViewVals.add(vals[i]);
 
-        mAdapter = new MySimpleArrayAdapter(super.getActivity().getApplicationContext(),
+        mAdapter = new MySimpleArrayAdapter(faActivity.getApplicationContext(),
                 mListViewVals);
 
         try {
@@ -100,6 +104,7 @@ public class EventPlaylistFragment extends Fragment implements
         catch (NullPointerException ex){
             Log.e("MainActivity", ex.toString());
         }
+
         return rlLayout;
     }
 
@@ -335,7 +340,55 @@ public class EventPlaylistFragment extends Fragment implements
             int cur_votes = Integer.parseInt((String) num_votes.getText());
             cur_votes += delta_votes;
             num_votes.setText(String.valueOf(cur_votes));
+            pushVoteToServer(delta_votes);
         }
+    }
+
+    private void pushVoteToServer(final int delta_votes){
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    JSONObject songData = new JSONObject();
+                    songData.put("uri", "uri=spotify:track:3uulVrxiI7iLTjOBZsaiF8");//TODO: dont hard code
+                    songData.put("val", delta_votes);
+
+                    JSONObject postReqJSON = new JSONObject();
+                    postReqJSON.put("EventName", "newplaylist");//TODO: dont hard code
+                    postReqJSON.put("password", "dopepass");//TODO: dont hard code
+                    postReqJSON.put("song", songData);
+                    URL url = new URL("http://52.40.236.184:5000/vote");
+                    HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setRequestProperty("Accept", "application/json");
+
+                    OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+                    wr.write(postReqJSON.toString());
+                    wr.flush();
+
+                    Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+                    StringBuilder sb = new StringBuilder();
+                    for (int c; (c = in.read()) >= 0;)
+                        sb.append((char)c);
+                    String response = sb.toString();
+                    JSONObject data = new JSONObject(response);
+                    //JSONObject resp = data.getJSONObject("Status");
+                    //String loudScreaming = json.getJSONObject("LabelData").getString("slogan");
+                    //String temp = data.getString("Status");
+                    //if(data.getString("Status").equals("OK")){
+                    //    changeActivity("Host");
+                    //}
+                    //JSONArray entries = tracks.getJSONArray("items");
+
+                } catch (Exception ex){
+                    Log.d("MainActivity", ex.toString());
+                }
+            }
+        });
+        thread.start();
     }
 
 }

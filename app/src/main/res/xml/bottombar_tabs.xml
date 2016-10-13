@@ -1,12 +1,12 @@
 <tabs>
     <tab
         id="@+id/event_playlist"
-        icon="@drawable/pause"
         title="Event Playlist" />
     <tab
-        id="@+id/artist_search"
+        id="@+id/search_artists"
+        icon="@drawable/pause"
         title="Search Artists" />
     <tab
-        id="@+id/tab_song_search"
+        id="@+id/search_songs"
         title="Search Songs" />
 </tabs>

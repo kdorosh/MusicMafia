@@ -223,16 +223,47 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             radioButton = (RadioButton) findViewById(selectedId);
 
             if(radioButton.getText().equals("Guest")){
-                //validateGuestUser();
+                validateGuestUser(eventName, password);
             } else {
-                //validateHostUser(eventName, password);
+                validateHostUser(eventName, password);
             }
 
             //upon success, switch activities
-            Intent intent = new Intent(this, PlaylistMaking.class);
-            intent.putExtra("USER_TYPE", radioButton.getText());
-            startActivity(intent);
+            //Intent intent = new Intent(this, PlaylistMaking.class);
+            //intent.putExtra("USER_TYPE", radioButton.getText());
+            //startActivity(intent);
         }
+    }
+
+    private boolean validateGuestUser(final String eventName, final String password) {
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    String urlString = "http://52.40.236.184:5000/guestLogin"
+                            +"?EventName="+eventName+"&password="+password;
+                    URL url = new URL(urlString);
+                    HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+                    InputStream in = conn.getInputStream();
+                    StringBuilder sb = new StringBuilder();
+                    for (int c; (c = in.read()) >= 0;)
+                        sb.append((char)c);
+                    String response = sb.toString();
+                    JSONObject data = new JSONObject(response);
+                    if(data.getString("Status").equals("OK")){
+                        changeActivity("Guest");
+                    } else {
+                        //mEventView.setError(data.getString("Status"));
+                    }
+                } catch (Exception ex){
+                    Log.d("MainActivity", ex.toString());
+                } //TODO: add disconnect
+            }
+        });
+        thread.start();
+
+        return true;
     }
 
     private boolean validateHostUser(final String eventName, final String password) {
@@ -262,8 +293,10 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
                         sb.append((char)c);
                     String response = sb.toString();
                     JSONObject data = new JSONObject(response);
-                    JSONObject resp = data.getJSONObject("Status");
-                    if(resp.toString().equals("OK")){
+                    //JSONObject resp = data.getJSONObject("Status");
+                    //String loudScreaming = json.getJSONObject("LabelData").getString("slogan");
+                    //String temp = data.getString("Status");
+                    if(data.getString("Status").equals("OK")){
                         changeActivity("Host");
                     }
                     //JSONArray entries = tracks.getJSONArray("items");
