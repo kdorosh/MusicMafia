@@ -1,27 +1,15 @@
 package mattnkev.cs.tufts.edu.musicmafia;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -37,16 +25,11 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.net.URL;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 
 public class PlaylistMaking extends AppCompatActivity implements
         SpotifyPlayer.NotificationCallback, ConnectionStateCallback
@@ -55,9 +38,10 @@ public class PlaylistMaking extends AppCompatActivity implements
     private static final String REDIRECT_URI = "android-app-login://callback";
 
     private Player mPlayer;
-    private ListView mListView;
-    private ArrayList<String> mListViewVals = new ArrayList<String>();
-    private MySimpleArrayAdapter mAdapter;
+    private Menu mOptionsMenu;
+    private final FragmentManager fm = getSupportFragmentManager();
+    private final Fragment eventPlaylistFragment = new EventPlaylistFragment();
+    private final Fragment searchSongsFragment = new SearchSongsFragment();
 
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
@@ -67,13 +51,8 @@ public class PlaylistMaking extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final FragmentManager fm = getSupportFragmentManager();
-        final Fragment eventPlaylistFragment = new EventPlaylistFragment();
-        final Fragment searchSongsFragment = new SearchSongsFragment();
-        //fm.beginTransaction().add(R.id.listFragment, eventPlaylistFragment).commit();
         fm.beginTransaction().add(R.id.listFragment, eventPlaylistFragment).commit();
-        //FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        //fm.beginTransaction().add(R.id.listFragment, searchSongsFragment).commit();
+        fm.beginTransaction().add(R.id.listFragment, searchSongsFragment).commit();
 
         setContentView(R.layout.activity_playlist_making);
 
@@ -90,50 +69,48 @@ public class PlaylistMaking extends AppCompatActivity implements
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
                     AuthenticationResponse.Type.TOKEN,
                     REDIRECT_URI);
-            builder.setScopes(new String[]{"user-read-private", "streaming"});
+            builder.setScopes(new String[]{"user-read-private", "streaming", "playlist-read-private",
+                    "playlist-read-collaborative", "playlist-modify-public", "playlist-modify-private"});
             AuthenticationRequest request = builder.build();
 
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
         }
 
-        /*mListView = (ListView)findViewById(R.id.main_list_view);
-
-        String[] vals = new String[] { "Android", "iPhoneReallyReallyReallyLongName", "WindowsMobile",
-                "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-                "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
-                "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2",
-                "Android", "iPhone", "WindowsMobile" };
-        for(int i=0; i<vals.length;i++)
-            mListViewVals.add(vals[i]);
-
-        mAdapter = new MySimpleArrayAdapter(this.getApplicationContext(),
-                mListViewVals);
-
-        try {
-            mListView.setAdapter(mAdapter);
-        }
-        catch (NullPointerException ex){
-            Log.e("MainActivity", ex.toString());
-        }*/
 
         BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {
                 if (tabId == R.id.event_playlist) {
-                    // The tab with id R.id.tab_favorites was selected,
-                    // change your content accordingly.
-                    fm.beginTransaction().replace(R.id.listFragment, eventPlaylistFragment).commit();
+                    fm.beginTransaction()
+                            //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                            .hide(searchSongsFragment)
+                            .commit();
+
+                    fm.beginTransaction()
+                            //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                            .show(eventPlaylistFragment)
+                            .commit();
+
+                    if (mOptionsMenu!=null)
+                        mOptionsMenu.findItem(R.id.search).setVisible(false);
                 }
                 if (tabId == R.id.search_artists) {
-                    // The tab with id R.id.tab_favorites was selected,
-                    // change your content accordingly.
+
                 }
                 if (tabId == R.id.search_songs) {
-                    // The tab with id R.id.tab_favorites was selected,
-                    // change your content accordingly.
+                    fm.beginTransaction()
+                            //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                            .hide(eventPlaylistFragment)
+                            .commit();
 
-                    fm.beginTransaction().replace(R.id.listFragment, searchSongsFragment).commit();
+                    fm.beginTransaction()
+                            //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                            .show(searchSongsFragment)
+                            .commit();
+
+                    if (mOptionsMenu!=null)
+                        mOptionsMenu.findItem(R.id.search).setVisible(true);
                 }
             }
         });
@@ -148,6 +125,16 @@ public class PlaylistMaking extends AppCompatActivity implements
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
+
+                Bundle extras = getIntent().getExtras();
+                if (extras != null) {
+                    String eventName = extras.getString("EVENT_NAME");
+                    String password = extras.getString("PASSWORD");
+                    //The key argument here must match that used in the other activity
+                    provideSpotifyAccessTokenToServer(eventName, password, response.getAccessToken(), REDIRECT_URI);
+
+                }
+
                 Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
                 Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
                     @Override
@@ -218,6 +205,43 @@ public class PlaylistMaking extends AppCompatActivity implements
     }
 
     /**  END OF SPOTIFY SETUP BOILERPLATE  **/
+    private boolean provideSpotifyAccessTokenToServer(final String eventName, final String password, final String accessToken, final String redirectURI) {
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                HttpURLConnection conn = null;
+                try {
+                    String urlString = "http://52.40.236.184:5000/createPlaylist"
+                            +"?EventName="+eventName+"&password="+password
+                            +"&AccessToken="+accessToken+"&redirect_uri="+redirectURI;
+                    URL url = new URL(urlString);
+                    conn = (HttpURLConnection)url.openConnection();
+                    InputStream in = conn.getInputStream();
+                    StringBuilder sb = new StringBuilder();
+                    for (int c; (c = in.read()) >= 0;)
+                        sb.append((char)c);
+                    String response = sb.toString();
+                    JSONObject data = new JSONObject(response);
+                    if(data.getString("Status").equals("OK")){
+                        //TODO: only proceed on success
+                    } else {
+                        //TODO: add good failure messages
+                    }
+                } catch (Exception ex){
+                    Log.d("MainActivity", ex.toString());
+                } finally {
+                    if (conn != null)
+                        conn.disconnect();
+                }
+            }
+        });
+        thread.start();
+
+        return true;
+    }
+
+
 
     public void pauseButton(MenuItem mi) {
         // handle click here
@@ -245,24 +269,31 @@ public class PlaylistMaking extends AppCompatActivity implements
                         JSONArray entries = tracks.getJSONArray("items");
 
                         String firstURI = "";
-                        //mListViewVals = new String[entries.length()];
-                        mListViewVals.clear();
-                        for (int i = 0; i < entries.length(); i++) {
+                        final String[] searchListViewSongs = new String[20];
+                        final String[] searchListViewURIs = new String[20];//new String[entries.length()];
+                        //mListViewVals.clear();
+                        for (int i = 0; i < 20;i++){//entries.length(); i++) {
                             JSONObject entry = entries.getJSONObject(i);
 
                             String name = entry.getString("uri");
+                            searchListViewURIs[i] = name;
                             if(i==0){firstURI = name; }
 
                             name = entry.getString("name");
-                            mListViewVals.add(name);
+                            //mListViewVals.add(name);
+                            searchListViewSongs[i] = name;
                         }
                         final String URI = firstURI;
+
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 //mAdapter.updateVals(mListViewVals);
                                 //mAdapter.notifyDataSetChanged();
-                                addSong(URI);
+                                //addSong(URI);
+                                //searchSongsFragment.updateListView();
+                                updateSearchFrag(searchListViewSongs, searchListViewURIs);
+
                             }
                         });
                         mPlayer.playUri(null, firstURI, 0, 0);
@@ -283,6 +314,10 @@ public class PlaylistMaking extends AppCompatActivity implements
         thread.start();
     }
 
+    private void updateSearchFrag(String[] songs, String[] URIs){
+        ((SearchSongsFragment)this.getSupportFragmentManager().findFragmentById(R.id.listFragment)).updateListView(songs, songs, URIs);
+    }
+
     private String readStream(InputStream is) {
         try {
             ByteArrayOutputStream bo = new ByteArrayOutputStream();
@@ -297,57 +332,13 @@ public class PlaylistMaking extends AppCompatActivity implements
         }
     }
 
-    private void addSong(final String uri){
-        Thread thread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    JSONObject songData = new JSONObject();
-                    songData.put("uri", uri);//TODO: dont hard code
-                    //songData.put("val", delta_votes);
-
-                    JSONObject postReqJSON = new JSONObject();
-                    postReqJSON.put("EventName", "newplaylist");//TODO: dont hard code
-                    postReqJSON.put("password", "dopepass");//TODO: dont hard code
-                    postReqJSON.put("song", songData);
-                    URL url = new URL("http://52.40.236.184:5000/addSong");
-                    HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Content-Type", "application/json");
-                    conn.setRequestProperty("Accept", "application/json");
-
-                    OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-                    wr.write(postReqJSON.toString());
-                    wr.flush();
-
-                    Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-
-                    StringBuilder sb = new StringBuilder();
-                    for (int c; (c = in.read()) >= 0;)
-                        sb.append((char)c);
-                    String response = sb.toString();
-                    JSONObject data = new JSONObject(response);
-                    //JSONObject resp = data.getJSONObject("Status");
-                    //String loudScreaming = json.getJSONObject("LabelData").getString("slogan");
-                    //String temp = data.getString("Status");
-                    //if(data.getString("Status").equals("OK")){
-                    //    changeActivity("Host");
-                    //}
-                    //JSONArray entries = tracks.getJSONArray("items");
-
-                } catch (Exception ex){
-                    Log.d("MainActivity", ex.toString());
-                }
-            }
-        });
-        thread.start();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_playlists, menu);
+
+        mOptionsMenu = menu;
+        mOptionsMenu.findItem(R.id.search).setVisible(false); //first fragment is playlist
 
         MenuItem searchItem = menu.findItem(R.id.search);
         android.support.v7.widget.SearchView searchView = (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(searchItem);
@@ -365,62 +356,6 @@ public class PlaylistMaking extends AppCompatActivity implements
         });
 
         return true;
-    }
-
-    private class MySimpleArrayAdapter extends ArrayAdapter<String> {
-        private final Context context;
-        private String[] values;
-
-        public MySimpleArrayAdapter(Context context, ArrayList<String> values) {
-            super(context, -1, values);
-            this.context = context;
-            this.values = values.toArray(new String [values.size()]);
-        }
-
-        public void updateVals(ArrayList<String> values) {
-            this.values = values.toArray(new String [values.size()]);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.list_view_layout, parent, false);
-
-            TextView songName = (TextView) rowView.findViewById(R.id.firstLine);
-            TextView artistName = (TextView) rowView.findViewById(R.id.secondLine);
-            TextView numberUpVotes = (TextView) rowView.findViewById(R.id.num_votes);
-
-            songName.setText(values[position]);
-            artistName.setText(values[position] + "Artist Name");
-
-            ImageView upArrowImg = (ImageView) rowView.findViewById(R.id.up_arrow);
-            ImageView downArrowImg = (ImageView) rowView.findViewById(R.id.down_arrow);
-
-            upArrowImg.setImageResource(R.drawable.public_domain_up_arrow);
-            downArrowImg.setImageResource(R.drawable.public_domain_down_arrow);
-
-            upArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, 1));
-            downArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, -1));
-
-            return rowView;
-        }
-    }
-
-    private class MyClickListener implements View.OnClickListener {
-        private int delta_votes;
-        private TextView num_votes;
-
-        public MyClickListener(TextView num_votes, int delta_votes) {
-            this.num_votes = num_votes;
-            this.delta_votes = delta_votes;
-        }
-
-        public void onClick(View v) {
-            int cur_votes = Integer.parseInt((String) num_votes.getText());
-            cur_votes += delta_votes;
-            num_votes.setText(String.valueOf(cur_votes));
-        }
     }
 
 }

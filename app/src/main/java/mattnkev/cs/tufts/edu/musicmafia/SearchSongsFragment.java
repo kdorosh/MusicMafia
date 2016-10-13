@@ -1,18 +1,11 @@
 package mattnkev.cs.tufts.edu.musicmafia;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -20,44 +13,29 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.player.Config;
-import com.spotify.sdk.android.player.ConnectionStateCallback;
-import com.spotify.sdk.android.player.Error;
-import com.spotify.sdk.android.player.Player;
-import com.spotify.sdk.android.player.PlayerEvent;
-import com.spotify.sdk.android.player.Spotify;
-import com.spotify.sdk.android.player.SpotifyPlayer;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class SearchSongsFragment extends Fragment {
-    //private static final String CLIENT_ID = "fe81735360154ee7921c12078d656a97";
-    //private static final String REDIRECT_URI = "android-app-login://callback";
 
-    //private Player mPlayer;
     private ListView mListView;
-    private ArrayList<String> mListViewVals = new ArrayList<String>();
+    private ArrayList<String> mListViewSongVals = new ArrayList<String>(), mListViewArtistVals = new ArrayList<String>();
     private MySimpleArrayAdapter mAdapter;
+    private FragmentActivity faActivity;
 
-    // Request code that will be used to verify if the result comes from correct activity
-    // Can be any integer
-    private static final int REQUEST_CODE = 1337;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        FragmentActivity faActivity = super.getActivity();
+        faActivity = super.getActivity();
         RelativeLayout rlLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_search_song, container, false);
 
         mListView = (ListView) rlLayout.findViewById(R.id.main_list_view);
@@ -67,11 +45,15 @@ public class SearchSongsFragment extends Fragment {
                 "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
                 "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2",
                 "Android", "iPhone", "WindowsMobile"};
-        for (int i = 0; i < vals.length; i++)
-            mListViewVals.add(vals[i]+"2");
+        int MAX_SIZE=20;
+        vals = new String[MAX_SIZE];
+        for (int i = 0; i < vals.length; i++) {
+            mListViewSongVals.add(vals[i] + "2");
+            mListViewArtistVals.add("Artist: " +vals[i] + "2");
+        }
 
         mAdapter = new MySimpleArrayAdapter(faActivity.getApplicationContext(),
-                mListViewVals);
+                mListViewSongVals, mListViewArtistVals);
 
         try {
             mListView.setAdapter(mAdapter);
@@ -79,60 +61,118 @@ public class SearchSongsFragment extends Fragment {
             Log.e("MainActivity", ex.toString());
         }
 
-//        android.support.v7.widget.SearchView searchView = (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(searchItem);
-//        searchView.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                spotifySearch(query);
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                return false;
-//            }
-//        });
-
         return rlLayout;
+    }
+
+    public void updateListView(String[] songs, String[] artists, String[] URIs){
+        mAdapter.updateVals(songs, artists, URIs);
+        mAdapter.notifyDataSetChanged();
     }
 
     private class MySimpleArrayAdapter extends ArrayAdapter<String> {
         private final Context context;
-        private String[] values;
+        private String[] songNames, artistNames, URIs;
 
-        public MySimpleArrayAdapter(Context context, ArrayList<String> values) {
-            super(context, -1, values);
+        public MySimpleArrayAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
+            super(context, -1, songNames);
             this.context = context;
-            this.values = values.toArray(new String[values.size()]);
+            this.songNames = songNames.toArray(new String [songNames.size()]);
+            this.artistNames = artistNames.toArray(new String [artistNames.size()]);
+            this.URIs = new String[20];
         }
 
-        public void updateVals(ArrayList<String> values) {
-            this.values = values.toArray(new String[values.size()]);
+        public void updateVals(String[] songNames, String[] artistNames, String[] URIs) {
+            this.songNames = songNames; //songNames.toArray(new String [songNames.size()]);
+            this.artistNames = artistNames;//artistNames.toArray(new String [artistNames.size()]);
+            this.URIs = URIs;
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.list_view_layout, parent, false);
+            View rowView = inflater.inflate(R.layout.list_view_layout_search, parent, false);
 
             TextView songName = (TextView) rowView.findViewById(R.id.firstLine);
             TextView artistName = (TextView) rowView.findViewById(R.id.secondLine);
-            TextView numberUpVotes = (TextView) rowView.findViewById(R.id.num_votes);
 
-            songName.setText(values[position]);
-            artistName.setText(values[position] + "Artist Name");
+            songName.setText(songNames[position]);
+            artistName.setText(artistNames[position]);
 
-            ImageView upArrowImg = (ImageView) rowView.findViewById(R.id.up_arrow);
-            ImageView downArrowImg = (ImageView) rowView.findViewById(R.id.down_arrow);
-
-            upArrowImg.setImageResource(R.drawable.public_domain_up_arrow);
-            downArrowImg.setImageResource(R.drawable.public_domain_down_arrow);
-
-            //upArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, 1));
-            //downArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, -1));
+            ImageView plusIcon = (ImageView) rowView.findViewById(R.id.plus_icon);
+            plusIcon.setImageResource(R.drawable.public_domain_plus);
+            plusIcon.setOnClickListener(new MyClickListener(songNames[position], artistNames[position], URIs[position]));
 
             return rowView;
         }
+    }
+
+    private class MyClickListener implements View.OnClickListener {
+        //private int delta_votes;
+        //private TextView num_votes;
+        private String songName, artistName, URI;
+
+        public MyClickListener(String songName, String artistName, String uri){//TextView num_votes, int delta_votes) {
+            //this.num_votes = num_votes;
+            //this.delta_votes = delta_votes;
+            this.songName = songName;
+            this.URI = artistName;
+            this.URI = uri;
+        }
+
+        public void onClick(View v) {
+            addSongToServerPlaylist(URI);
+        }
+    }
+
+    private void addSongToServerPlaylist(final String uri){
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                HttpURLConnection conn = null;
+                try {
+                    JSONObject songData = new JSONObject();
+                    songData.put("uri", uri);
+
+                    JSONObject postReqJSON = new JSONObject();
+
+                    Bundle extras = faActivity.getIntent().getExtras();
+                    String eventName = "", password = "";
+                    if (extras != null) {
+                        eventName = extras.getString("EVENT_NAME");
+                        password = extras.getString("PASSWORD");
+                    }
+
+                    postReqJSON.put("EventName", eventName);
+                    postReqJSON.put("password", password);
+                    postReqJSON.put("song", songData);
+                    URL url = new URL("http://52.40.236.184:5000/addSong");
+                    conn = (HttpURLConnection)url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setRequestProperty("Accept", "application/json");
+
+                    OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+                    wr.write(postReqJSON.toString());
+                    wr.flush();
+
+                    Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+                    StringBuilder sb = new StringBuilder();
+                    for (int c; (c = in.read()) >= 0;)
+                        sb.append((char)c);
+                    String response = sb.toString();
+                    JSONObject data = new JSONObject(response);
+
+                } catch (Exception ex){
+                    Log.d("MainActivity", ex.toString());
+                } finally {
+                    if (conn != null)
+                        conn.disconnect();
+                }
+            }
+        });
+        thread.start();
     }
 }

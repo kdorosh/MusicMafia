@@ -6,17 +6,14 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -33,12 +30,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,15 +38,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
@@ -215,11 +203,12 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(eventName, password);
-            mAuthTask.execute((Void) null);
 
-            // find the radiobutton by returned id
+            //bring this back in future..
+            //showProgress(true);
+            //mAuthTask = new UserLoginTask(eventName, password);
+            //mAuthTask.execute((Void) null);
+
             radioButton = (RadioButton) findViewById(selectedId);
 
             if(radioButton.getText().equals("Guest")){
@@ -228,10 +217,8 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
                 validateHostUser(eventName, password);
             }
 
-            //upon success, switch activities
-            //Intent intent = new Intent(this, PlaylistMaking.class);
-            //intent.putExtra("USER_TYPE", radioButton.getText());
-            //startActivity(intent);
+            //  upon success, switch activities
+            //changeActivity(radioButton.getText().toString(), eventName, password);
         }
     }
 
@@ -240,25 +227,55 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
 
             @Override
             public void run() {
+                HttpURLConnection conn = null;
                 try {
                     String urlString = "http://52.40.236.184:5000/guestLogin"
                             +"?EventName="+eventName+"&password="+password;
                     URL url = new URL(urlString);
-                    HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+                    conn = (HttpURLConnection)url.openConnection();
                     InputStream in = conn.getInputStream();
                     StringBuilder sb = new StringBuilder();
                     for (int c; (c = in.read()) >= 0;)
                         sb.append((char)c);
                     String response = sb.toString();
                     JSONObject data = new JSONObject(response);
-                    if(data.getString("Status").equals("OK")){
-                        changeActivity("Guest");
+                    final String status = data.getString("Status");
+                    if(status.equals("OK")){
+                        changeActivity("Host", eventName, password);
                     } else {
-                        //mEventView.setError(data.getString("Status"));
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mEventView.setError(status);
+                                mEventView.requestFocus();
+                            }
+                        });
                     }
-                } catch (Exception ex){
+                } catch (ConnectException ex) {
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mEventView.setError("The server is down");
+                            mEventView.requestFocus();
+                        }
+                    });
+
+                } catch (final Exception ex){
                     Log.d("MainActivity", ex.toString());
-                } //TODO: add disconnect
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mEventView.setError(ex.getMessage().toString());
+                            mEventView.requestFocus();
+                        }
+                    });
+
+                } finally {
+                    if (conn != null)
+                        conn.disconnect();
+                }
             }
         });
         thread.start();
@@ -271,13 +288,14 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
 
             @Override
             public void run() {
+                HttpURLConnection conn = null;
                 try {
                     JSONObject postReqJSON = new JSONObject();
                     postReqJSON.put("EventName", eventName);
                     postReqJSON.put("password", password);
 
                     URL url = new URL("http://52.40.236.184:5000/create");
-                    HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+                    conn = (HttpURLConnection)url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty("Content-Type", "application/json");
                     conn.setRequestProperty("Accept", "application/json");
@@ -293,16 +311,41 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
                         sb.append((char)c);
                     String response = sb.toString();
                     JSONObject data = new JSONObject(response);
-                    //JSONObject resp = data.getJSONObject("Status");
-                    //String loudScreaming = json.getJSONObject("LabelData").getString("slogan");
-                    //String temp = data.getString("Status");
-                    if(data.getString("Status").equals("OK")){
-                        changeActivity("Host");
+                    final String status = data.getString("Status");
+                    if(status.equals("OK")){
+                        changeActivity("Host", eventName, password);
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mEventView.setError(status);
+                                mEventView.requestFocus();
+                            }
+                        });
                     }
-                    //JSONArray entries = tracks.getJSONArray("items");
 
-                } catch (Exception ex){
+                } catch (ConnectException ex) {
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mEventView.setError("The server is down");
+                            mEventView.requestFocus();
+                        }
+                    });
+                } catch (final Exception ex) {
+
                     Log.d("MainActivity", ex.toString());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mEventView.setError(ex.getMessage().toString());
+                            mEventView.requestFocus();
+                        }
+                    });
+                } finally {
+                    if (conn != null)
+                        conn.disconnect();
                 }
             }
         });
@@ -311,9 +354,11 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
         return true;
     }
 
-    private void changeActivity(String user_type){
+    private void changeActivity(String user_type, String eventName, String password){
         Intent intent = new Intent(this, PlaylistMaking.class);
         intent.putExtra("USER_TYPE", user_type);
+        intent.putExtra("EVENT_NAME", eventName);
+        intent.putExtra("PASSWORD", password);
         startActivity(intent);
     }
 

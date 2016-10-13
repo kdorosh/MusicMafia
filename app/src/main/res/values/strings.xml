@@ -17,6 +17,7 @@
     <string name="prompt_host">Host</string>
     <string name="btn_display">Display Button</string>
     <string name="up_vote_button">Up Vote Button</string>
+    <string name="add_song_button">Add Song Button</string>
     <string name="down_vote_button">Down Vote Button</string>
     <string name="song_name">Song Name</string>
     <string name="artist_name">Artist Name</string>
