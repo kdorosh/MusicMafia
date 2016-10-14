@@ -286,7 +286,10 @@ public class PlaylistMaking extends AppCompatActivity implements
                         for (int i = 0; i < 20;i++){//entries.length(); i++) {
                             JSONObject entry = entries.getJSONObject(i);
 
-                            String name = entry.getString("uri");
+                            String name = entry.getString("name");
+                            //String name = entry.getString("artist");
+                            //String name = entry.getString("uri");
+
                             searchListViewURIs[i] = name;
                             if(i==0){firstURI = name; }
 

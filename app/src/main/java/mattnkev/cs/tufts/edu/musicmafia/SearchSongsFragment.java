@@ -167,11 +167,11 @@ public class SearchSongsFragment extends Fragment {
         }
 
         public void onClick(View v) {
-            addSongToServerPlaylist(URI);
+            addSongToServerPlaylist(songName, artistName, URI);
         }
     }
 
-    private void addSongToServerPlaylist(final String uri){
+    private void addSongToServerPlaylist(final String songName, final String artistName, final String uri){
         Thread thread = new Thread(new Runnable() {
 
             @Override
@@ -179,6 +179,8 @@ public class SearchSongsFragment extends Fragment {
                 HttpURLConnection conn = null;
                 try {
                     JSONObject songData = new JSONObject();
+                    songData.put("name", songName);
+                    songData.put("artist", artistName);
                     songData.put("uri", uri);
 
                     JSONObject postReqJSON = new JSONObject();
