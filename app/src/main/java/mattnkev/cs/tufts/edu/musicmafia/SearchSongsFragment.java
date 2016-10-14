@@ -6,12 +6,16 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.json.JSONObject;
@@ -31,12 +35,53 @@ public class SearchSongsFragment extends Fragment {
     private ArrayList<String> mListViewSongVals = new ArrayList<String>(), mListViewArtistVals = new ArrayList<String>();
     private MySimpleArrayAdapter mAdapter;
     private FragmentActivity faActivity;
-
+    private SearchView mSearchView;
+    private MenuItem menuItem;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         faActivity = super.getActivity();
+        setHasOptionsMenu(true);
         RelativeLayout rlLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_search_song, container, false);
+
+        mSearchView = (SearchView) rlLayout.findViewById(R.id.spotify_song_search);
+        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+            public boolean onQueryTextChange(String newText) {
+                return true;
+            }
+
+            public boolean onQueryTextSubmit(String query) {
+                ((PlaylistMaking)faActivity).spotifySearch(query);
+                mSearchView.clearFocus();
+                return true;
+            }
+        };
+
+        mSearchView.setOnQueryTextListener(queryTextListener);
+        /*mSearchView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (mOnQueryTextFocusChangeListener != null) {
+                    mOnQueryTextFocusChangeListener.onFocusChange(SearchView.this, hasFocus);
+                }
+                if (hasFocus) {
+                    ((PlaylistMaking)faActivity).setBottomBarVisibility(false);
+                } else {
+                    ((PlaylistMaking)faActivity).setBottomBarVisibility(true);
+                }
+            }
+        });*/
+        mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean queryTextFocused) {
+                if(!queryTextFocused) {
+                    ((PlaylistMaking)faActivity).setBottomBarVisibility(true);
+                    //mSearchView.setQuery("", false);
+                } else {
+                    ((PlaylistMaking)faActivity).setBottomBarVisibility(false);
+                }
+            }
+        });
+
 
         mListView = (ListView) rlLayout.findViewById(R.id.main_list_view);
 
@@ -63,6 +108,7 @@ public class SearchSongsFragment extends Fragment {
 
         return rlLayout;
     }
+
 
     public void updateListView(String[] songs, String[] artists, String[] URIs){
         mAdapter.updateVals(songs, artists, URIs);
@@ -116,7 +162,7 @@ public class SearchSongsFragment extends Fragment {
             //this.num_votes = num_votes;
             //this.delta_votes = delta_votes;
             this.songName = songName;
-            this.URI = artistName;
+            this.artistName = artistName;
             this.URI = uri;
         }
 

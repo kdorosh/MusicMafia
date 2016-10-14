@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -42,6 +44,7 @@ public class PlaylistMaking extends AppCompatActivity implements
     private final FragmentManager fm = getSupportFragmentManager();
     private final Fragment eventPlaylistFragment = new EventPlaylistFragment();
     private final Fragment searchSongsFragment = new SearchSongsFragment();
+    private BottomBar bottomBar;
 
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
@@ -76,8 +79,7 @@ public class PlaylistMaking extends AppCompatActivity implements
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
         }
 
-
-        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+        bottomBar = (BottomBar) findViewById(R.id.bottomBar);
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {
@@ -92,8 +94,11 @@ public class PlaylistMaking extends AppCompatActivity implements
                             .show(eventPlaylistFragment)
                             .commit();
 
-                    if (mOptionsMenu!=null)
-                        mOptionsMenu.findItem(R.id.search).setVisible(false);
+                    //if (mOptionsMenu!=null)
+                    //    mOptionsMenu.findItem(R.id.search).setVisible(false);
+
+                    //TODO: really really hacky (gets hidden but we re-show)
+                    bottomBar.setVisibility(View.VISIBLE);
                 }
                 if (tabId == R.id.search_artists) {
 
@@ -109,8 +114,8 @@ public class PlaylistMaking extends AppCompatActivity implements
                             .show(searchSongsFragment)
                             .commit();
 
-                    if (mOptionsMenu!=null)
-                        mOptionsMenu.findItem(R.id.search).setVisible(true);
+                    //if (mOptionsMenu!=null)
+                    //    mOptionsMenu.findItem(R.id.search).setVisible(true);
                 }
             }
         });
@@ -241,14 +246,20 @@ public class PlaylistMaking extends AppCompatActivity implements
         return true;
     }
 
-
+    public void setBottomBarVisibility(boolean isVisible){
+        if (isVisible) {
+            bottomBar.setVisibility(View.VISIBLE);
+        } else {
+            bottomBar.setVisibility(View.GONE);
+        }
+    }
 
     public void pauseButton(MenuItem mi) {
         // handle click here
         mPlayer.pause(null);
     }
 
-    private void spotifySearch(final String query){
+    public void spotifySearch(final String query){
 
         Thread thread = new Thread(new Runnable() {
 
@@ -338,7 +349,7 @@ public class PlaylistMaking extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.menu_playlists, menu);
 
         mOptionsMenu = menu;
-        mOptionsMenu.findItem(R.id.search).setVisible(false); //first fragment is playlist
+        /*mOptionsMenu.findItem(R.id.search).setVisible(false); //first fragment is playlist
 
         MenuItem searchItem = menu.findItem(R.id.search);
         android.support.v7.widget.SearchView searchView = (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(searchItem);
@@ -353,7 +364,7 @@ public class PlaylistMaking extends AppCompatActivity implements
             public boolean onQueryTextChange(String newText) {
                 return false;
             }
-        });
+        });*/
 
         return true;
     }

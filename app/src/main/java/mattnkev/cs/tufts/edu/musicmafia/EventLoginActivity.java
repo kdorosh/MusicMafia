@@ -241,7 +241,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
                     JSONObject data = new JSONObject(response);
                     final String status = data.getString("Status");
                     if(status.equals("OK")){
-                        changeActivity("Host", eventName, password);
+                        changeActivity("Guest", eventName, password);
                     } else {
                         runOnUiThread(new Runnable() {
                             @Override
