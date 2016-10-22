@@ -2,10 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="mattnkev.cs.tufts.edu.musicmafia">
 
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <!-- for Spotify streaming -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -16,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".EventLoginActivity"
+            android:name=".activities.EventLoginActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PlaylistMaking"
+        <activity android:name=".activities.PlaylistMakingActivity"
             android:label="Event Playlist">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -32,7 +28,6 @@
             <meta-data android:name="android.app.searchable"
                 android:resource="@xml/search_config"/>
         </activity>
-        <activity android:name=".SpotifyTest"></activity>
         <!-- Needed for LoginActivity to work -->
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"

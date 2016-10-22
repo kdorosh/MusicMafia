@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="mattnkev.cs.tufts.edu.musicmafia.EventLoginActivity">
+    tools:context="mattnkev.cs.tufts.edu.musicmafia.activities.EventLoginActivity">
 
     <!-- Login progress -->
 
@@ -35,12 +35,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <AutoCompleteTextView
+                <EditText
                     android:id="@+id/event_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
-                    android:inputType="textEmailAddress"
                     android:maxLines="1" />
 
             </android.support.design.widget.TextInputLayout>

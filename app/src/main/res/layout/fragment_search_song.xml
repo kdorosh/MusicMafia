@@ -11,8 +11,6 @@
             android:id="@+id/spotify_song_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/prompt_email"
-            android:inputType="textEmailAddress"
             android:maxLines="1" />
 
         <ListView

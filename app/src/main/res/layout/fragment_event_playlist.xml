@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin_playlists"
     android:paddingRight="@dimen/activity_horizontal_margin_playlists"
     android:paddingTop="@dimen/activity_vertical_margin_playlists"
-    tools:context="mattnkev.cs.tufts.edu.musicmafia.PlaylistMaking">
+    tools:context="mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity">
 
     <ListView
         android:id="@+id/main_list_view"
