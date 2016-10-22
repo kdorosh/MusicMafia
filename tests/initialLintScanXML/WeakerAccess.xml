@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>59</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment void addToListView(java.lang.String[] songs, java.lang.String[] artists, java.lang.String[] URIs)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration access can be weaker</problem_class>
+    <hints>
+      <hint value="private" />
+    </hints>
+    <description>Can be private</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/SearchSongsFragment.java</file>
+    <line>106</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment void updateListView(java.lang.String[] songs, java.lang.String[] artists, java.lang.String[] URIs)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration access can be weaker</problem_class>
+    <hints>
+      <hint value="private" />
+    </hints>
+    <description>Can be private</description>
+  </problem>
+</problems>
+

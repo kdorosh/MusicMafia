@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/Utils.java</file>
+    <line>41</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.Utils java.lang.String attemptPOST(java.lang.String server, java.lang.String command, java.lang.String[] params, java.lang.String[] args)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Actual method parameter is the same constant</problem_class>
+    <hints>
+      <hint value="server mattnkev.cs.tufts.edu.musicmafia.Utils.SERVER_URL" />
+    </hints>
+    <description>Actual value of parameter '&lt;code&gt;server&lt;/code&gt;' is always '&lt;code&gt;mattnkev.cs.tufts.edu.musicmafia.Utils.SERVER_URL&lt;/code&gt;'</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/activities/EventLoginActivity.java</file>
+    <line>176</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.activities</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.activities.EventLoginActivity void showProgress(boolean show)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Actual method parameter is the same constant</problem_class>
+    <hints>
+      <hint value="show false" />
+    </hints>
+    <description>Actual value of parameter '&lt;code&gt;show&lt;/code&gt;' is always '&lt;code&gt;false&lt;/code&gt;'</description>
+  </problem>
+</problems>
+

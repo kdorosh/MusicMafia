@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/activities/PlaylistMakingActivity.java</file>
+    <line>84</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.activities</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity$1 void onTabSelected(int tabId)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Statement with empty body</problem_class>
+    <description>&lt;code&gt;if&lt;/code&gt; statement has empty body #loc</description>
+  </problem>
+</problems>
+

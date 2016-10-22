@@ -12,6 +12,7 @@
         android:layout_height="fill_parent"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginRight="6dip"
         android:layout_marginEnd="6dip"
         android:contentDescription="@string/add_song_button" />

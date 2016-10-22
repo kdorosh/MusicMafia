@@ -36,7 +36,6 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
     private static final String REDIRECT_URI = "android-app-login://callback";
 
     private Player mPlayer;
-    private Menu mOptionsMenu;
     private final FragmentManager mFragmentManager = getSupportFragmentManager();
     private final Fragment mEventPlaylistFragment = new EventPlaylistFragment();
     private final Fragment mSearchSongsFragment = new SearchSongsFragment();
@@ -82,10 +81,10 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
                             .show(mEventPlaylistFragment)
                             .commit();
                 }
-                if (tabId == R.id.search_artists) {
-
-                }
-                if (tabId == R.id.search_songs) {
+//              else if (tabId == R.id.search_artists) {
+//                    //TODO: add search fragment for artists
+//                }
+                else if (tabId == R.id.search_songs) {
                     mFragmentManager.beginTransaction()
                             //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                             .hide(mEventPlaylistFragment)
@@ -115,7 +114,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
                 if (extras != null) {
                     String eventName = extras.getString("EVENT_NAME");
                     String password = extras.getString("PASSWORD");
-                    // Provides Spotify creds to server
+                    // Provides Spotify credentials to server
                     status = Utils.attemptGET(Utils.SERVER_URL, "createPlaylist",
                             new String[]{"EventName", "password", "AccessToken", "redirect_uri"},
                             new String[]{eventName, password, response.getAccessToken(), REDIRECT_URI});
@@ -206,13 +205,15 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
     public void pauseButton(MenuItem mi) {
         mPlayer.pause(null);
+
+        // to prevent lint problem where mi is unused
+        mi.setIntent(mi.getIntent());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_playlist_making_activity, menu);
-        mOptionsMenu = menu;
         return true;
     }
 

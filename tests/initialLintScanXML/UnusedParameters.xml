@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/activities/PlaylistMakingActivity.java</file>
+    <line>206</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.activities</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity void pauseButton(android.view.MenuItem mi)" />
+    <problem_class severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">Unused method parameters</problem_class>
+    <hints>
+      <hint value="mi" />
+    </hints>
+    <description>Parameter &lt;code&gt;mi&lt;/code&gt; is not used  in either this method or any of its derived methods</description>
+  </problem>
+</problems>
+

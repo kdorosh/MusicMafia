@@ -2,6 +2,7 @@ package mattnkev.cs.tufts.edu.musicmafia.fragments;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -24,8 +25,9 @@ import mattnkev.cs.tufts.edu.musicmafia.Utils;
 
 public class EventPlaylistFragment extends Fragment
 {
-    private ListView mListView;
-    private ArrayList<String> mListViewSongVals = new ArrayList<String>(), mListViewArtistVals = new ArrayList<String>();
+    private final ArrayList<String>
+            mListViewSongValues = new ArrayList<>(),
+            mListViewArtistValues = new ArrayList<>();
     private MySimpleArrayAdapter mAdapter;
     private FragmentActivity faActivity;
 
@@ -34,19 +36,21 @@ public class EventPlaylistFragment extends Fragment
         faActivity = super.getActivity();
         RelativeLayout rlLayout = (RelativeLayout)inflater.inflate(R.layout.fragment_event_playlist, container, false);
 
-        mListView = (ListView)rlLayout.findViewById(R.id.main_list_view);
+        ListView listView = (ListView)rlLayout.findViewById(R.id.main_list_view);
 
-        String[] vals = new String[Utils.MAX_LISTVIEW_LEN];
-        for(int i = 0; i < vals.length; i++) {
-            mListViewSongVals.add("Song: " + vals[i]);
-            mListViewArtistVals.add("ARTIST: " + vals[i]);
+        String[] values = new String[Utils.MAX_LISTVIEW_LEN];
+        for (int c = 0; c < Utils.MAX_LISTVIEW_LEN; c++)
+            values[c] = "placeholder";
+        for(String val : values) {
+            mListViewSongValues.add("Song: " + val);
+            mListViewArtistValues.add("ARTIST: " + val);
         }
 
         mAdapter = new MySimpleArrayAdapter(faActivity.getApplicationContext(),
-                mListViewSongVals, mListViewArtistVals);
+                mListViewSongValues, mListViewArtistValues);
 
         try {
-            mListView.setAdapter(mAdapter);
+            listView.setAdapter(mAdapter);
         }
         catch (NullPointerException ex){
             Log.e("MainActivity", ex.toString());
@@ -57,8 +61,8 @@ public class EventPlaylistFragment extends Fragment
         return rlLayout;
     }
 
-    public void addToListView(String[] songs, String[] artists, String[] URIs){
-        mAdapter.updateVals(songs, artists, URIs);
+    private void addToListView(String[] songs, String[] artists, String[] URIs){
+        mAdapter.updateValues(songs, artists, URIs);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -66,7 +70,7 @@ public class EventPlaylistFragment extends Fragment
         private final Context context;
         private String[] songNames, artistNames, URIs;
 
-        public String getURI(int position){
+        private String getURI(int position){
             return URIs[position];
         }
 
@@ -77,41 +81,45 @@ public class EventPlaylistFragment extends Fragment
             this.artistNames = artistNames.toArray(new String [artistNames.size()]);
         }
 
-        public void updateVals(String[] songNames, String[] artists, String[] uris){
+        public void updateValues(String[] songNames, String[] artists, String[] uris){
             this.songNames = songNames;
             this.artistNames = artists;
             this.URIs = uris;
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.list_view_layout_event_playlist, parent, false);
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            if (convertView == null) {
 
-            TextView songName = (TextView) rowView.findViewById(R.id.firstLine);
-            TextView artistName = (TextView) rowView.findViewById(R.id.secondLine);
-            TextView numberUpVotes = (TextView) rowView.findViewById(R.id.num_votes);
+                LayoutInflater inflater = (LayoutInflater) context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.list_view_layout_event_playlist, parent, false);
 
-            songName.setText(songNames[position]);
-            artistName.setText(artistNames[position]);
+                TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
+                TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
+                TextView numberUpVotes = (TextView) convertView.findViewById(R.id.num_votes);
 
-            ImageView upArrowImg = (ImageView) rowView.findViewById(R.id.up_arrow);
-            ImageView downArrowImg = (ImageView) rowView.findViewById(R.id.down_arrow);
+                songName.setText(songNames[position]);
+                artistName.setText(artistNames[position]);
 
-            upArrowImg.setImageResource(R.drawable.public_domain_up_arrow);
-            downArrowImg.setImageResource(R.drawable.public_domain_down_arrow);
+                ImageView upArrowImg = (ImageView) convertView.findViewById(R.id.up_arrow);
+                ImageView downArrowImg = (ImageView) convertView.findViewById(R.id.down_arrow);
 
-            upArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, 1, position));
-            downArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, -1, position));
+                upArrowImg.setImageResource(R.drawable.public_domain_up_arrow);
+                downArrowImg.setImageResource(R.drawable.public_domain_down_arrow);
 
-            return rowView;
+                upArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, 1, position));
+                downArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, -1, position));
+            }
+
+            return convertView;
         }
     }
 
     private class MyClickListener implements View.OnClickListener {
-        private int delta_votes, position;
-        private TextView num_votes;
+        private final int delta_votes, position;
+        private final TextView num_votes;
 
         public MyClickListener(TextView num_votes, int delta_votes, int position) {
             this.num_votes = num_votes;
@@ -145,11 +153,11 @@ public class EventPlaylistFragment extends Fragment
                     songData.put("uri", mAdapter.getURI(position));
                     songData.put("val", delta_votes);
 
-                    Utils.attemptPOST(Utils.SERVER_URL, "vote",
+                    Utils.attemptPOST("vote",
                             new String[]{"EventName", "password", "song"},
                             new String[]{eventName, password, songData.toString()});
                 }
-                catch (Exception ex) {}
+                catch (Exception ex) { Log.d("pushVoteToServer", ex.toString()); }
 
             }
         });
@@ -206,7 +214,7 @@ public class EventPlaylistFragment extends Fragment
                         addToListView(songs, artists, uris);
                     }
                 }
-                catch (Exception ex) {}
+                catch (Exception ex) { Log.d("queryDatabase", ex.toString()); }
 
             }
         });

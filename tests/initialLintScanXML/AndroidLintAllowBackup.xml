@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml</file>
+    <line>8</line>
+    <module>app</module>
+    <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">AllowBackup/FullBackupContent Problems</problem_class>
+    <hints />
+    <description>&lt;html&gt;On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute &lt;code&gt;android:fullBackupContent&lt;/code&gt; to specify an &lt;code&gt;@xml&lt;/code&gt; resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html&lt;/html&gt;</description>
+  </problem>
+</problems>
+

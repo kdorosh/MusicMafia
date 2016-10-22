@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/Utils.java</file>
+    <line>163</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.Utils.SpotifyResp searchListViewURIs" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/Utils.java</file>
+    <line>162</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.Utils.SpotifyResp searchListViewSongs" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>112</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment.MyClickListener delta_votes" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>113</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment.MyClickListener num_votes" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>27</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment mListViewSongValues" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>27</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment mListViewArtistValues" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>112</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment.MyClickListener position" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/SearchSongsFragment.java</file>
+    <line>150</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment.MyClickListener URI" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/SearchSongsFragment.java</file>
+    <line>150</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment.MyClickListener songName" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/SearchSongsFragment.java</file>
+    <line>150</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment.MyClickListener artistName" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/SearchSongsFragment.java</file>
+    <line>25</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment mListViewArtistValues" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/SearchSongsFragment.java</file>
+    <line>25</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="field" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment mListViewSongValues" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Declaration can have final modifier</problem_class>
+    <hints />
+    <description>Declaration can have final modifier</description>
+  </problem>
+</problems>
+

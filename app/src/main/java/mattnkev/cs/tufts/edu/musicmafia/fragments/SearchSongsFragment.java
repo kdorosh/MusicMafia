@@ -1,12 +1,12 @@
 package mattnkev.cs.tufts.edu.musicmafia.fragments;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -23,12 +23,10 @@ import mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity;
 
 public class SearchSongsFragment extends Fragment {
 
-    private ListView mListView;
-    private ArrayList<String> mListViewSongVals = new ArrayList<String>(), mListViewArtistVals = new ArrayList<String>();
+    private final ArrayList<String> mListViewSongValues = new ArrayList<>(), mListViewArtistValues = new ArrayList<>();
     private MySimpleArrayAdapter mAdapter;
     private FragmentActivity faActivity;
     private SearchView mSearchView;
-    private MenuItem menuItem;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -85,20 +83,22 @@ public class SearchSongsFragment extends Fragment {
         });
 
 
-        mListView = (ListView) rlLayout.findViewById(R.id.main_list_view);
+        ListView listView = (ListView) rlLayout.findViewById(R.id.main_list_view);
 
 
-        String[] vals = new String[Utils.MAX_LISTVIEW_LEN];
-        for (String val : vals) {
-            mListViewSongVals.add(val + "2");
-            mListViewArtistVals.add("Artist: " + val + "2");
+        String[] values = new String[Utils.MAX_LISTVIEW_LEN];
+        for (int c = 0; c < Utils.MAX_LISTVIEW_LEN; c++)
+            values[c] = "placeholder";
+        for (String val : values) {
+            mListViewSongValues.add(val + "2");
+            mListViewArtistValues.add("Artist: " + val + "2");
         }
 
         mAdapter = new MySimpleArrayAdapter(faActivity.getApplicationContext(),
-                mListViewSongVals, mListViewArtistVals);
+                mListViewSongValues, mListViewArtistValues);
 
         try {
-            mListView.setAdapter(mAdapter);
+            listView.setAdapter(mAdapter);
         } catch (NullPointerException ex) {
             Log.e("MainActivity", ex.toString());
         }
@@ -106,8 +106,8 @@ public class SearchSongsFragment extends Fragment {
         return rlLayout;
     }
 
-    public void updateListView(final String[] songs, final String[] artists, final String[] URIs){
-        mAdapter.updateVals(songs, artists, URIs);
+    private void updateListView(final String[] songs, final String[] artists, final String[] URIs){
+        mAdapter.updateValues(songs, artists, URIs);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -115,7 +115,7 @@ public class SearchSongsFragment extends Fragment {
         private final Context context;
         private String[] songNames, artistNames, URIs;
 
-        public MySimpleArrayAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
+        private MySimpleArrayAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
             super(context, -1, songNames);
             this.context = context;
             this.songNames = songNames.toArray(new String [songNames.size()]);
@@ -123,36 +123,39 @@ public class SearchSongsFragment extends Fragment {
             this.URIs = new String[20];
         }
 
-        public void updateVals(String[] songNames, String[] artistNames, String[] URIs) {
+        private void updateValues(String[] songNames, String[] artistNames, String[] URIs) {
             this.songNames = songNames;
             this.artistNames = artistNames;
             this.URIs = URIs;
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.list_view_layout_search_song, parent, false);
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.list_view_layout_search_song, parent, false);
 
-            TextView songName = (TextView) rowView.findViewById(R.id.firstLine);
-            TextView artistName = (TextView) rowView.findViewById(R.id.secondLine);
+                TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
+                TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
 
-            songName.setText(songNames[position]);
-            artistName.setText(artistNames[position]);
+                songName.setText(songNames[position]);
+                artistName.setText(artistNames[position]);
 
-            ImageView plusIcon = (ImageView) rowView.findViewById(R.id.plus_icon);
-            plusIcon.setImageResource(R.drawable.public_domain_plus);
-            plusIcon.setOnClickListener(new MyClickListener(songNames[position], artistNames[position], URIs[position]));
+                ImageView plusIcon = (ImageView) convertView.findViewById(R.id.plus_icon);
+                plusIcon.setImageResource(R.drawable.public_domain_plus);
+                plusIcon.setOnClickListener(new MyClickListener(songNames[position], artistNames[position], URIs[position]));
+            }
 
-            return rowView;
+            return convertView;
         }
     }
 
     private class MyClickListener implements View.OnClickListener {
-        private String songName, artistName, URI;
+        private final String songName, artistName, URI;
 
-        public MyClickListener(String songName, String artistName, String uri){//TextView num_votes, int delta_votes) {
+        private MyClickListener(String songName, String artistName, String uri){
             this.songName = songName;
             this.artistName = artistName;
             this.URI = uri;
@@ -184,7 +187,7 @@ public class SearchSongsFragment extends Fragment {
                 }
                 catch (Exception ex) { Log.d("SearchSongsFragment", ex.toString()); }
 
-                String response = Utils.attemptPOST(Utils.SERVER_URL, "addSong",
+                Utils.attemptPOST("addSong",
                         new String[] {"EventName", "password", "song"},
                         new String[] {eventName, password, songData.toString()});
 

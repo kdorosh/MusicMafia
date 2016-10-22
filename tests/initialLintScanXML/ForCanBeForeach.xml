@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>39</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment android.view.View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">'for' loop replaceable with 'foreach'</problem_class>
+    <description>&lt;code&gt;for&lt;/code&gt; loop replaceable with 'foreach' #loc</description>
+  </problem>
+</problems>
+

@@ -24,20 +24,21 @@ import java.net.URL;
 
 
 public class Utils {
-    public static final String SERVER_URL = "http://52.40.236.184:5000/";
+    public static final String SERVER_URL = "http://intense-lake-23543.herokuapp.com/";//"http://52.40.236.184:5000/";
     public static final String SPOTIFY_SERVER_URL = "https://api.spotify.com/v1/";
     public static final int MAX_LISTVIEW_LEN = 20;
     public static final int PINGER_DELAY_SEC = 10;
-    public static final int MIN_EVENT_NAME_LENGTH = 4;
-    public static final int MIN_PASSWORD_LENGTH = 4;
+    public static final int MIN_EVENT_NAME_LENGTH = 1;
+    public static final int MIN_PASSWORD_LENGTH = 1;
 
+    private static final String SERVER_DOWN_RESP = "{ \"Status\": \"The server is down\" }";
 
     /*
  * Attempts a POST request to our server. params and args must match up
  *
  * If not called as part of an AsyncTask may need to be called on background thread
  */
-    public static String attemptPOST(String server, String command, String[] params, String[] args) {
+    public static String attemptPOST(String command, String[] params, String[] args) {
         HttpURLConnection conn = null;
         try {
             JSONObject postReqJSON = new JSONObject();
@@ -46,7 +47,7 @@ public class Utils {
             for(int c = 0; c < params.length; c++)
                 postReqJSON.put(params[c], args[c]);
 
-            URL url = new URL(server + command);
+            URL url = new URL(SERVER_URL + command);
             conn = (HttpURLConnection)url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
@@ -67,9 +68,7 @@ public class Utils {
             return data.getString("Status");
 
         } catch (ConnectException ex) {
-            //TODO: remove, this was for debugging (before the server was live)
-            return "OK";
-            //return "The server is down";
+            return SERVER_DOWN_RESP;
         } catch (final Exception ex) {
             return ex.toString();
         } finally {
@@ -104,9 +103,7 @@ public class Utils {
             return sb.toString();
 
         } catch (ConnectException ex) {
-            //TODO: remove, this was for debugging (before the server was live)
-            return "OK";
-            //return "The server is down";
+            return SERVER_DOWN_RESP;
         } catch (final Exception ex){
             return ex.toString();
         } finally {
@@ -119,7 +116,7 @@ public class Utils {
         Bundle extras = intent.getExtras();
         if (extras != null) {
             String value = extras.getString("USER_TYPE");
-            if (value.equals("Guest"))
+            if (value != null && value.equals("Guest"))
                 return false;
         }
         return true;
@@ -139,30 +136,33 @@ public class Utils {
                 searchListViewSongs[i] = entry.getString("name");
                 searchListViewURIs[i] = entry.getString("uri");
             }
-
-
             return new SpotifyResp(searchListViewSongs, searchListViewURIs);
-            //runOnUiThread(new Runnable() {
-            //    @Override
-            //    public void run() {
-            //        updateSearchFrag(searchListViewSongs, searchListViewURIs);
-            //    }
-            //});
         }
         catch (Exception ex)
         {
             Log.d("Utils", ex.toString());
             return null;
         }
+    }
 
-
+    public static String parseRespForStatus(String resp) {
+        try
+        {
+            JSONObject data = new JSONObject(resp);
+            return data.getString("Status");
+        }
+        catch (Exception ex)
+        {
+            Log.d("Utils", ex.toString());
+        }
+        return "JSON Object \"Status\" not found";
     }
 
     public static class SpotifyResp {
-        private String[] searchListViewSongs;
-        private String[] searchListViewURIs;
+        private final String[] searchListViewSongs;
+        private final String[] searchListViewURIs;
 
-        public SpotifyResp(String[] songsList, String[] uris) {
+        private SpotifyResp(String[] songsList, String[] uris) {
             searchListViewSongs = songsList;
             searchListViewURIs = uris;
         }
@@ -170,10 +170,8 @@ public class Utils {
         public String[] getSearchListViewSongs(){
             return searchListViewSongs;
         }
-
         public String[] getSearchListViewURIs(){
             return searchListViewURIs;
         }
-
     }
 }

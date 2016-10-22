@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>86</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment.MySimpleArrayAdapter android.view.View getView(int position, android.view.View convertView, android.view.ViewGroup parent)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@NotNull/@Nullable problems</problem_class>
+    <description>Not annotated method overrides method annotated with @NonNull</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>86</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment.MySimpleArrayAdapter android.view.View getView(int position, android.view.View convertView, android.view.ViewGroup parent)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@NotNull/@Nullable problems</problem_class>
+    <description>Not annotated parameter overrides @NonNull parameter</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/SearchSongsFragment.java</file>
+    <line>130</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment.MySimpleArrayAdapter android.view.View getView(int position, android.view.View convertView, android.view.ViewGroup parent)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@NotNull/@Nullable problems</problem_class>
+    <description>Not annotated method overrides method annotated with @NonNull</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/SearchSongsFragment.java</file>
+    <line>130</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment.MySimpleArrayAdapter android.view.View getView(int position, android.view.View convertView, android.view.ViewGroup parent)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@NotNull/@Nullable problems</problem_class>
+    <description>Not annotated parameter overrides @NonNull parameter</description>
+  </problem>
+</problems>
+

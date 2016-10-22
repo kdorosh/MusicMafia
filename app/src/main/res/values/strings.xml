@@ -6,16 +6,11 @@
     <string name="prompt_password">Event Password</string>
     <string name="action_sign_in">Validate Credentials</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_eventName">Invalid event ID</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_invalid_eventName">This Event ID has whitespace</string>
+    <string name="error_invalid_password">This password has whitespace</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
     <string name="prompt_guest">Guest</string>
     <string name="prompt_host">Host</string>
-    <string name="btn_display">Display Button</string>
     <string name="up_vote_button">Up Vote Button</string>
     <string name="add_song_button">Add Song Button</string>
     <string name="down_vote_button">Down Vote Button</string>
@@ -25,4 +20,5 @@
     <string name="default_num_votes">0</string>
     <string name="app_label">Music Mafia</string>
     <string name="search_hint">Search for song</string>
+    <string name="pause_button_info">Pause Music</string>
 </resources>

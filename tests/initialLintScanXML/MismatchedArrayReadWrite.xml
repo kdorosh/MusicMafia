@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/EventPlaylistFragment.java</file>
+    <line>38</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment android.view.View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Mismatched read and write of array</problem_class>
+    <description>Contents of array &lt;code&gt;values&lt;/code&gt; are read, but never written to #loc</description>
+  </problem>
+  <problem>
+    <file>file://$PROJECT_DIR$/app/src/main/java/mattnkev/cs/tufts/edu/musicmafia/fragments/SearchSongsFragment.java</file>
+    <line>88</line>
+    <module>app</module>
+    <package>mattnkev.cs.tufts.edu.musicmafia.fragments</package>
+    <entry_point TYPE="method" FQNAME="mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment android.view.View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState)" />
+    <problem_class severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Mismatched read and write of array</problem_class>
+    <description>Contents of array &lt;code&gt;values&lt;/code&gt; are read, but never written to #loc</description>
+  </problem>
+</problems>
+

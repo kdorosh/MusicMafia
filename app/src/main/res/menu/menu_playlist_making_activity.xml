@@ -7,6 +7,6 @@ xmlns:app="http://schemas.android.com/apk/res-auto">
         android:icon="@drawable/pause"
         app:showAsAction="always"
         android:onClick="pauseButton"
-        android:title="Pause Music">
+        android:title="@string/pause_button_info">
     </item>
 </menu>
