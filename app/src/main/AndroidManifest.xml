@@ -42,6 +42,8 @@
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="cd0973c56a378ea41ad7e927d29c52fb17208594" />
     </application>
-
 </manifest>

@@ -24,6 +24,9 @@ import android.widget.RadioGroup;
 import mattnkev.cs.tufts.edu.musicmafia.R;
 import mattnkev.cs.tufts.edu.musicmafia.Utils;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
+
 /**
  * A login screen that offers login via event name/event password.
  */
@@ -43,6 +46,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_event_login);
         // Set up the login form.
 
