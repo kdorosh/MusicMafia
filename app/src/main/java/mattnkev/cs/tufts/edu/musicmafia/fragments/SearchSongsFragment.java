@@ -31,6 +31,7 @@ public class SearchSongsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         faActivity = super.getActivity();
+
         setHasOptionsMenu(true);
         RelativeLayout rlLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_search_song, container, false);
 
@@ -185,11 +186,14 @@ public class SearchSongsFragment extends Fragment {
                     songData.put("artist", artistName);
                     songData.put("uri", uri);
                 }
-                catch (Exception ex) { Log.d("SearchSongsFragment", ex.toString()); }
+                catch (Exception ex) { Log.e("SearchSongsFragment", ex.toString()); }
 
-                Utils.attemptPOST("addSong",
+                String status = Utils.attemptPOST("addSong",
                         new String[] {"EventName", "password", "song"},
                         new String[] {eventName, password, songData.toString()});
+
+                //TODO: error message if status is bad
+                boolean dummy = status.equals("OK");
 
             }
         });

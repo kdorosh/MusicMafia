@@ -48,11 +48,12 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_playlist_making);
 
         mFragmentManager.beginTransaction().add(R.id.listFragment, mEventPlaylistFragment).commit();
         mFragmentManager.beginTransaction().add(R.id.listFragment, mSearchSongsFragment).commit();
 
-        setContentView(R.layout.activity_playlist_making);
+
 
         if (Utils.isHost(getIntent())) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
@@ -70,14 +71,9 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
             @Override
             public void onTabSelected(@IdRes int tabId) {
                 if (tabId == R.id.event_playlist) {
-
                     mFragmentManager.beginTransaction()
                             //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                             .hide(mSearchSongsFragment)
-                            .commit();
-
-                    mFragmentManager.beginTransaction()
-                            //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                             .show(mEventPlaylistFragment)
                             .commit();
                 }
@@ -88,10 +84,6 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
                     mFragmentManager.beginTransaction()
                             //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                             .hide(mEventPlaylistFragment)
-                            .commit();
-
-                    mFragmentManager.beginTransaction()
-                            //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                             .show(mSearchSongsFragment)
                             .commit();
                 }
@@ -106,20 +98,25 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
-            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
+            final AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
 
-                String status;
                 Bundle extras = getIntent().getExtras();
                 if (extras != null) {
-                    String eventName = extras.getString("EVENT_NAME");
-                    String password = extras.getString("PASSWORD");
+                    final String eventName = extras.getString("EVENT_NAME");
+                    final String password = extras.getString("PASSWORD");
                     // Provides Spotify credentials to server
-                    status = Utils.attemptGET(Utils.SERVER_URL, "createPlaylist",
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String status = Utils.attemptGET(Utils.SERVER_URL, "createPlaylist",
                             new String[]{"EventName", "password", "AccessToken", "redirect_uri"},
                             new String[]{eventName, password, response.getAccessToken(), REDIRECT_URI});
+                        }
+                    });
+                    thread.start();
                     // TODO: add error message for failure
-                    if (!status.equals("OK")) { return; }
+                    // if (!status.equals("OK")) { return; }
 
                 }
 
@@ -204,7 +201,8 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
     }
 
     public void pauseButton(MenuItem mi) {
-        mPlayer.pause(null);
+        if (mPlayer != null)
+            mPlayer.pause(null);
 
         // to prevent lint problem where mi is unused
         mi.setIntent(mi.getIntent());

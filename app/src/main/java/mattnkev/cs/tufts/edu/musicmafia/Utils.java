@@ -24,7 +24,8 @@ import java.net.URL;
 
 
 public class Utils {
-    public static final String SERVER_URL = "http://intense-lake-23543.herokuapp.com/";//"http://52.40.236.184:5000/";
+    //public static final String SERVER_URL = "http://intense-lake-23543.herokuapp.com/";
+    public static final String SERVER_URL = "http://52.40.236.184:5000/";
     public static final String SPOTIFY_SERVER_URL = "https://api.spotify.com/v1/";
     public static final int MAX_LISTVIEW_LEN = 20;
     public static final int PINGER_DELAY_SEC = 10;
@@ -62,10 +63,8 @@ public class Utils {
             StringBuilder sb = new StringBuilder();
             for (int c; (c = in.read()) >= 0;)
                 sb.append((char)c);
-            String response = sb.toString();
 
-            JSONObject data = new JSONObject(response);
-            return data.getString("Status");
+            return sb.toString();
 
         } catch (ConnectException ex) {
             return SERVER_DOWN_RESP;
@@ -100,6 +99,7 @@ public class Utils {
             StringBuilder sb = new StringBuilder();
             for (int c; (c = in.read()) >= 0;)
                 sb.append((char)c);
+
             return sb.toString();
 
         } catch (ConnectException ex) {
@@ -140,7 +140,7 @@ public class Utils {
         }
         catch (Exception ex)
         {
-            Log.d("Utils", ex.toString());
+            Log.e("Utils: ParseSpotifyResp", ex.toString());
             return null;
         }
     }
@@ -153,9 +153,9 @@ public class Utils {
         }
         catch (Exception ex)
         {
-            Log.d("Utils", ex.toString());
+            Log.e("parseRespForStatus", ex.toString());
         }
-        return "JSON Object \"Status\" not found";
+        return "JSON Object \"Status\" not found:" + resp;
     }
 
     public static class SpotifyResp {
@@ -174,4 +174,5 @@ public class Utils {
             return searchListViewURIs;
         }
     }
+
 }

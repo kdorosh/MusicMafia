@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import mattnkev.cs.tufts.edu.musicmafia.R;
 import mattnkev.cs.tufts.edu.musicmafia.Utils;
+import mattnkev.cs.tufts.edu.musicmafia.activities.EventLoginActivity;
 
 
 public class EventPlaylistFragment extends Fragment
@@ -56,14 +57,18 @@ public class EventPlaylistFragment extends Fragment
             Log.e("MainActivity", ex.toString());
         }
 
-        startPinger();
+        //startPinger();
 
         return rlLayout;
     }
 
-    private void addToListView(String[] songs, String[] artists, String[] URIs){
-        mAdapter.updateValues(songs, artists, URIs);
-        mAdapter.notifyDataSetChanged();
+    private void addToListView(final String[] songs, final String[] artists, final String[] URIs){
+        faActivity.runOnUiThread(new Runnable() {
+            public void run() {
+                mAdapter.updateValues(songs, artists, URIs);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private class MySimpleArrayAdapter extends ArrayAdapter<String> {
@@ -157,7 +162,7 @@ public class EventPlaylistFragment extends Fragment
                             new String[]{"EventName", "password", "song"},
                             new String[]{eventName, password, songData.toString()});
                 }
-                catch (Exception ex) { Log.d("pushVoteToServer", ex.toString()); }
+                catch (Exception ex) { Log.e("pushVoteToServer", ex.toString()); }
 
             }
         });
@@ -171,13 +176,12 @@ public class EventPlaylistFragment extends Fragment
 
         //update immediately
         queryDatabase();
-        mAdapter.notifyDataSetChanged();
-        h.postDelayed(new Runnable(){
+        /*h.postDelayed(new Runnable(){
             public void run(){
                 queryDatabase();
                 h.postDelayed(this, delay);
             }
-        }, delay);
+        }, delay);*/
     }
 
     private void queryDatabase(){
@@ -211,10 +215,17 @@ public class EventPlaylistFragment extends Fragment
                             artists[i] = songObj.getString("artist");
                             uris[i] = songObj.getString("uri");
                         }
+
+                        //TODO: dont force size to be 20 and force intialize everything
+                        for (int i = 0; i < Utils.MAX_LISTVIEW_LEN; i++) songs[i] = "Placeholder123";
+                        for (int i = 0; i < Utils.MAX_LISTVIEW_LEN; i++) artists[i] = "Placeholder123";
+                        for (int i = 0; i < Utils.MAX_LISTVIEW_LEN; i++) uris[i] = "Placeholder123";
+                        //for (String artist : artists) if (artist == null) artist = "Placeholder";
+                        //for (String uri : uris) if (uri == null) uri = "Placeholder";
                         addToListView(songs, artists, uris);
                     }
                 }
-                catch (Exception ex) { Log.d("queryDatabase", ex.toString()); }
+                catch (Exception ex) { Log.e("queryDatabase", ex.toString()); }
 
             }
         });
