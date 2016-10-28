@@ -53,8 +53,6 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
         mFragmentManager.beginTransaction().add(R.id.listFragment, mEventPlaylistFragment).commit();
         mFragmentManager.beginTransaction().add(R.id.listFragment, mSearchSongsFragment).commit();
 
-
-
         if (Utils.isHost(getIntent())) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
                     AuthenticationResponse.Type.TOKEN,
@@ -112,12 +110,13 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
                             String status = Utils.attemptGET(Utils.SERVER_URL, "createPlaylist",
                             new String[]{"EventName", "password", "AccessToken", "redirect_uri"},
                             new String[]{eventName, password, response.getAccessToken(), REDIRECT_URI});
+
+                            if (!status.equals("OK"))
+                                Utils.displayMsg(PlaylistMakingActivity.this, status);
+
                         }
                     });
                     thread.start();
-                    // TODO: add error message for failure
-                    // if (!status.equals("OK")) { return; }
-
                 }
 
                 Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
@@ -203,15 +202,16 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
     public void pauseButton(MenuItem mi) {
         if (mPlayer != null)
             mPlayer.pause(null);
-
-        // to prevent lint problem where mi is unused
-        mi.setIntent(mi.getIntent());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_playlist_making_activity, menu);
+
+        // only add the pause button if we aren't the host
+        if (Utils.isHost(getIntent())) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.menu_playlist_making_activity, menu);
+        }
         return true;
     }
 

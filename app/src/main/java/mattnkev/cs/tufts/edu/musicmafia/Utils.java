@@ -1,5 +1,8 @@
 package mattnkev.cs.tufts.edu.musicmafia;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,7 +27,6 @@ import java.net.URL;
 
 
 public class Utils {
-    //public static final String SERVER_URL = "http://intense-lake-23543.herokuapp.com/";
     public static final String SERVER_URL = "http://52.40.236.184:5000/";
     public static final String SPOTIFY_SERVER_URL = "https://api.spotify.com/v1/";
     public static final int MAX_LISTVIEW_LEN = 20;
@@ -130,13 +132,15 @@ public class Utils {
             JSONArray entries = tracks.getJSONArray("items");
 
             final String[] searchListViewSongs = new String[MAX_LISTVIEW_LEN];
+            final String[] searchListViewArtists = new String[MAX_LISTVIEW_LEN];
             final String[] searchListViewURIs = new String[MAX_LISTVIEW_LEN];
             for (int i = 0; i < MAX_LISTVIEW_LEN; i++){
                 JSONObject entry = entries.getJSONObject(i);
                 searchListViewSongs[i] = entry.getString("name");
                 searchListViewURIs[i] = entry.getString("uri");
+                searchListViewArtists[i] = entry.getJSONObject("album").getJSONArray("artists").getJSONObject(0).getString("name");
             }
-            return new SpotifyResp(searchListViewSongs, searchListViewURIs);
+            return new SpotifyResp(searchListViewSongs, searchListViewArtists, searchListViewURIs);
         }
         catch (Exception ex)
         {
@@ -160,19 +164,43 @@ public class Utils {
 
     public static class SpotifyResp {
         private final String[] searchListViewSongs;
+        private final String[] searchListViewArtists;
         private final String[] searchListViewURIs;
 
-        private SpotifyResp(String[] songsList, String[] uris) {
+        private SpotifyResp(String[] songsList, String[] artists, String[] uris) {
             searchListViewSongs = songsList;
+            searchListViewArtists = artists;
             searchListViewURIs = uris;
         }
 
         public String[] getSearchListViewSongs(){
             return searchListViewSongs;
         }
+        public String[] getSearchListViewArtists() { return  searchListViewArtists; }
         public String[] getSearchListViewURIs(){
             return searchListViewURIs;
         }
+    }
+
+
+    public static void displayMsg(final Activity activity, final String status) {
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+
+                AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage(status);
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Continue", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface arg0, int arg1)
+                    {
+                        // continue to activity anyways
+                    }
+                });
+
+                alertDialog.show();
+            }
+        });
     }
 
 }

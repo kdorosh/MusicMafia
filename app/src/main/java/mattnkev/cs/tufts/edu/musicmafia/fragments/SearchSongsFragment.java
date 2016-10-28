@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -50,11 +51,11 @@ public class SearchSongsFragment extends Fragment {
                                 new String[]{query, "track", "US"});
                         final Utils.SpotifyResp spotifyResp = Utils.parseSpotifyResp(resp);
 
-                        if (spotifyResp != null) {
-                            getActivity().runOnUiThread(new Runnable() {
+                        if (spotifyResp != null && faActivity != null) {
+                            faActivity.runOnUiThread(new Runnable() {
                                 public void run() {
                                     updateListView(spotifyResp.getSearchListViewSongs(),
-                                            spotifyResp.getSearchListViewSongs(),
+                                            spotifyResp.getSearchListViewArtists(),
                                             spotifyResp.getSearchListViewURIs());
 
                                     mSearchView.clearFocus();
@@ -89,10 +90,10 @@ public class SearchSongsFragment extends Fragment {
 
         String[] values = new String[Utils.MAX_LISTVIEW_LEN];
         for (int c = 0; c < Utils.MAX_LISTVIEW_LEN; c++)
-            values[c] = "placeholder";
+            values[c] = "placeholder"+c;
         for (String val : values) {
-            mListViewSongValues.add(val + "2");
-            mListViewArtistValues.add("Artist: " + val + "2");
+            mListViewSongValues.add(val);
+            mListViewArtistValues.add("Artist: " + val);
         }
 
         mAdapter = new MySimpleArrayAdapter(faActivity.getApplicationContext(),
@@ -108,16 +109,23 @@ public class SearchSongsFragment extends Fragment {
     }
 
     private void updateListView(final String[] songs, final String[] artists, final String[] URIs){
+        //mAdapter.clear();
+        for (String song : songs)
+        {
+            //mAdapter.insert(song, mAdapter.getCount());
+        }
+
         mAdapter.updateValues(songs, artists, URIs);
         mAdapter.notifyDataSetChanged();
     }
 
-    private class MySimpleArrayAdapter extends ArrayAdapter<String> {
+    private class MySimpleArrayAdapter extends BaseAdapter {
         private final Context context;
         private String[] songNames, artistNames, URIs;
 
         private MySimpleArrayAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
-            super(context, -1, songNames);
+            super();
+            //super(context, -1, songNames);
             this.context = context;
             this.songNames = songNames.toArray(new String [songNames.size()]);
             this.artistNames = artistNames.toArray(new String [artistNames.size()]);
@@ -130,24 +138,39 @@ public class SearchSongsFragment extends Fragment {
             this.URIs = URIs;
         }
 
+        @Override
+        public int getCount() {
+            return songNames.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return songNames[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            if (convertView == null) {
-                LayoutInflater inflater = (LayoutInflater) context
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.list_view_layout_search_song, parent, false);
 
-                TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
-                TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.list_view_layout_search_song, parent, false);
 
-                songName.setText(songNames[position]);
-                artistName.setText(artistNames[position]);
+            TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
+            TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
 
-                ImageView plusIcon = (ImageView) convertView.findViewById(R.id.plus_icon);
-                plusIcon.setImageResource(R.drawable.public_domain_plus);
-                plusIcon.setOnClickListener(new MyClickListener(songNames[position], artistNames[position], URIs[position]));
-            }
+            songName.setText(songNames[position]);
+            artistName.setText(artistNames[position]);
+
+            ImageView plusIcon = (ImageView) convertView.findViewById(R.id.plus_icon);
+            plusIcon.setImageResource(R.drawable.public_domain_plus);
+            plusIcon.setOnClickListener(new MyClickListener(songNames[position], artistNames[position], URIs[position]));
+
 
             return convertView;
         }

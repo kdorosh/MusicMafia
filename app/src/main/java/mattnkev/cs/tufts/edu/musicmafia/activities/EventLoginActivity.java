@@ -102,18 +102,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password
-        if (TextUtils.isEmpty(password)) {
-            mPasswordView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordView;
-            cancel = true;
-        } else if (!isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid eventName address.
+        // Check for a valid eventName.
         if (TextUtils.isEmpty(eventName)) {
             mEventView.setError(getString(R.string.error_field_required));
             focusView = mEventView;
@@ -124,20 +113,37 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             cancel = true;
         }
 
+        // only check password if Event Name was valid. results in Cleaner UI
+        if (!cancel)
+        {
+            // Check for a valid password
+            if (TextUtils.isEmpty(password)) {
+                mPasswordView.setError(getString(R.string.error_field_required));
+                focusView = mPasswordView;
+                cancel = true;
+            } else if (!isPasswordValid(password)) {
+                mPasswordView.setError(getString(R.string.error_invalid_password));
+                focusView = mPasswordView;
+                cancel = true;
+            }
+        }
+
+
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // kick off a background task to perform the user login attempt.
-
-            mAuthTask = new UserLoginTask(eventName, password);
-            mAuthTask.execute((Void) null);
-
             Button radioButton = (RadioButton) findViewById(selectedId);
 
             if (radioButton != null)
                 mIsHost = radioButton.getText().equals("Host");
+
+            // kick off a background task to perform the user login attempt.
+            mAuthTask = new UserLoginTask(eventName, password);
+            mAuthTask.execute((Void) null);
+
 
         }
     }
@@ -237,7 +243,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
                 return false;
             }
 
-            return successfulLogin;
+            return true;//TODO: return successfulLogin
         }
 
         @Override

@@ -21,8 +21,6 @@ import java.util.ArrayList;
 
 import mattnkev.cs.tufts.edu.musicmafia.R;
 import mattnkev.cs.tufts.edu.musicmafia.Utils;
-import mattnkev.cs.tufts.edu.musicmafia.activities.EventLoginActivity;
-
 
 public class EventPlaylistFragment extends Fragment
 {
@@ -41,10 +39,10 @@ public class EventPlaylistFragment extends Fragment
 
         String[] values = new String[Utils.MAX_LISTVIEW_LEN];
         for (int c = 0; c < Utils.MAX_LISTVIEW_LEN; c++)
-            values[c] = "placeholder";
+            values[c] = "placeholder"+c;
         for(String val : values) {
             mListViewSongValues.add("Song: " + val);
-            mListViewArtistValues.add("ARTIST: " + val);
+            mListViewArtistValues.add("Artist: " + val);
         }
 
         mAdapter = new MySimpleArrayAdapter(faActivity.getApplicationContext(),
@@ -79,14 +77,14 @@ public class EventPlaylistFragment extends Fragment
             return URIs[position];
         }
 
-        public MySimpleArrayAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
+        private MySimpleArrayAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
             super(context, -1, songNames);
             this.context = context;
             this.songNames = songNames.toArray(new String [songNames.size()]);
             this.artistNames = artistNames.toArray(new String [artistNames.size()]);
         }
 
-        public void updateValues(String[] songNames, String[] artists, String[] uris){
+        private void updateValues(String[] songNames, String[] artists, String[] uris){
             this.songNames = songNames;
             this.artistNames = artists;
             this.URIs = uris;
@@ -95,7 +93,7 @@ public class EventPlaylistFragment extends Fragment
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            if (convertView == null) {
+            //if (convertView == null) {
 
                 LayoutInflater inflater = (LayoutInflater) context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -116,7 +114,7 @@ public class EventPlaylistFragment extends Fragment
 
                 upArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, 1, position));
                 downArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, -1, position));
-            }
+            //}
 
             return convertView;
         }
@@ -126,7 +124,7 @@ public class EventPlaylistFragment extends Fragment
         private final int delta_votes, position;
         private final TextView num_votes;
 
-        public MyClickListener(TextView num_votes, int delta_votes, int position) {
+        private MyClickListener(TextView num_votes, int delta_votes, int position) {
             this.num_votes = num_votes;
             this.delta_votes = delta_votes;
             this.position = position;
@@ -176,12 +174,12 @@ public class EventPlaylistFragment extends Fragment
 
         //update immediately
         queryDatabase();
-        /*h.postDelayed(new Runnable(){
+        h.postDelayed(new Runnable(){
             public void run(){
                 queryDatabase();
                 h.postDelayed(this, delay);
             }
-        }, delay);*/
+        }, delay);
     }
 
     private void queryDatabase(){
@@ -220,12 +218,12 @@ public class EventPlaylistFragment extends Fragment
                         for (int i = 0; i < Utils.MAX_LISTVIEW_LEN; i++) songs[i] = "Placeholder123";
                         for (int i = 0; i < Utils.MAX_LISTVIEW_LEN; i++) artists[i] = "Placeholder123";
                         for (int i = 0; i < Utils.MAX_LISTVIEW_LEN; i++) uris[i] = "Placeholder123";
-                        //for (String artist : artists) if (artist == null) artist = "Placeholder";
                         //for (String uri : uris) if (uri == null) uri = "Placeholder";
+                        //for (String artist : artists) if (artist == null) artist = "Placeholder";
                         addToListView(songs, artists, uris);
                     }
                 }
-                catch (Exception ex) { Log.e("queryDatabase", ex.toString()); }
+                catch (Exception ex) { Log.e("queryDatabase", ex.toString()); Utils.displayMsg(faActivity, resp); }
 
             }
         });
