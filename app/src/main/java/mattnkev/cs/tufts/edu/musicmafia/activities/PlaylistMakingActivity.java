@@ -99,25 +99,22 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
             final AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
 
-                Bundle extras = getIntent().getExtras();
-                if (extras != null) {
-                    final String eventName = extras.getString("EVENT_NAME");
-                    final String password = extras.getString("PASSWORD");
-                    // Provides Spotify credentials to server
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            String status = Utils.attemptGET(Utils.SERVER_URL, "createPlaylist",
-                            new String[]{"EventName", "password", "AccessToken", "redirect_uri"},
-                            new String[]{eventName, password, response.getAccessToken(), REDIRECT_URI});
+                final Utils.EventData eventData = new Utils.EventData(this);
+                // Provides Spotify credentials to server
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String status = Utils.attemptGET(Utils.SERVER_URL, "createPlaylist",
+                        new String[]{"EventName", "password", "AccessToken", "redirect_uri"},
+                        new String[]{eventData.getEventName(), eventData.getPassword(), response.getAccessToken(), REDIRECT_URI});
 
-                            if (!status.equals("OK"))
-                                Utils.displayMsg(PlaylistMakingActivity.this, status);
+                        if (!status.equals("OK"))
+                            Utils.displayMsg(PlaylistMakingActivity.this, status);
 
-                        }
-                    });
-                    thread.start();
-                }
+                    }
+                });
+                thread.start();
+
 
                 Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
                 Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
@@ -192,11 +189,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
 
     public void setBottomBarVisibility(boolean isVisible){
-        if (isVisible) {
-            mBottomBar.setVisibility(View.VISIBLE);
-        } else {
-            mBottomBar.setVisibility(View.GONE);
-        }
+        mBottomBar.setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     public void pauseButton(MenuItem mi) {

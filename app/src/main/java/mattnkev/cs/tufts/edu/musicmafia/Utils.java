@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -22,9 +23,8 @@ import java.net.URL;
 /**
  * Created by Kevin on 10/21/2016.
  *
- * Collection of utility methods to be shared by other classes
+ * Collection of static utility methods to be shared by other classes
  */
-
 
 public class Utils {
     public static final String SERVER_URL = "http://52.40.236.184:5000/";
@@ -45,7 +45,7 @@ public class Utils {
         HttpURLConnection conn = null;
         try {
             JSONObject postReqJSON = new JSONObject();
-            if(params.length != args.length) { return "Invalid params/args"; }
+            if (params.length != args.length) { return "Invalid params/args"; }
 
             for(int c = 0; c < params.length; c++)
                 postReqJSON.put(params[c], args[c]);
@@ -124,7 +124,7 @@ public class Utils {
         return true;
     }
 
-    public static SpotifyResp parseSpotifyResp(String resp) {
+    public static PlaylistData parseSpotifyResp(String resp) {
         try
         {
             JSONObject data = new JSONObject(resp);
@@ -134,13 +134,14 @@ public class Utils {
             final String[] searchListViewSongs = new String[MAX_LISTVIEW_LEN];
             final String[] searchListViewArtists = new String[MAX_LISTVIEW_LEN];
             final String[] searchListViewURIs = new String[MAX_LISTVIEW_LEN];
-            for (int i = 0; i < MAX_LISTVIEW_LEN; i++){
+            int minLen = Math.min(Utils.MAX_LISTVIEW_LEN, entries.length());
+            for (int i = 0; i < minLen; i++){
                 JSONObject entry = entries.getJSONObject(i);
                 searchListViewSongs[i] = entry.getString("name");
                 searchListViewURIs[i] = entry.getString("uri");
                 searchListViewArtists[i] = entry.getJSONObject("album").getJSONArray("artists").getJSONObject(0).getString("name");
             }
-            return new SpotifyResp(searchListViewSongs, searchListViewArtists, searchListViewURIs);
+            return new PlaylistData(searchListViewSongs, searchListViewArtists, searchListViewURIs);
         }
         catch (Exception ex)
         {
@@ -162,43 +163,93 @@ public class Utils {
         return "JSON Object \"Status\" not found:" + resp;
     }
 
-    public static class SpotifyResp {
+    public static PlaylistData parseCurrentPlaylist(String resp, FragmentActivity faActivity) {
+        try {
+            JSONObject data = new JSONObject(resp);
+            JSONObject eventData = data.getJSONObject("Event");
+            if (data.getString("Status").equals("OK")) {
+
+                JSONArray songsJson = eventData.getJSONArray("songs");
+                String[] songs = new String[Utils.MAX_LISTVIEW_LEN],
+                        artists = new String[Utils.MAX_LISTVIEW_LEN],
+                        uris = new String[Utils.MAX_LISTVIEW_LEN];
+                int minLen = Math.min(Utils.MAX_LISTVIEW_LEN, songsJson.length());
+                for (int i = 0; i < minLen; i++) {
+                    JSONObject songObj = songsJson.getJSONObject(i);
+                    songs[i] = songObj.getString("name");
+                    artists[i] = songObj.getString("artist");
+                    uris[i] = songObj.getString("uri");
+                }
+
+                return new PlaylistData(songs, artists, uris);
+            }
+            else {
+                displayMsg(faActivity, data.getString("Status"));
+                return null;
+            }
+        }
+        catch (Exception ex) {
+            Log.e("parseAndUpdateCurrent..", ex.toString());
+            displayMsg(faActivity, resp);
+            return null;
+        }
+    }
+
+    public static class PlaylistData {
         private final String[] searchListViewSongs;
         private final String[] searchListViewArtists;
         private final String[] searchListViewURIs;
 
-        private SpotifyResp(String[] songsList, String[] artists, String[] uris) {
+        private PlaylistData(String[] songsList, String[] artists, String[] uris) {
             searchListViewSongs = songsList;
             searchListViewArtists = artists;
             searchListViewURIs = uris;
         }
 
-        public String[] getSearchListViewSongs(){
+        public String[] getSongs(){
             return searchListViewSongs;
         }
-        public String[] getSearchListViewArtists() { return  searchListViewArtists; }
-        public String[] getSearchListViewURIs(){
+        public String[] getArtists() { return searchListViewArtists; }
+        public String[] getURIs(){
             return searchListViewURIs;
         }
+    }
+
+    public static class EventData {
+        private final String eventName, password;
+
+        public EventData(Activity faActivity){
+            Bundle extras = faActivity.getIntent().getExtras();
+            if (extras != null) {
+                eventName = extras.getString("EVENT_NAME");
+                password = extras.getString("PASSWORD");
+            }
+            else {
+                eventName = "";
+                password = "";
+            }
+        }
+
+        public String getEventName() { return eventName; }
+        public String getPassword() { return password; }
     }
 
 
     public static void displayMsg(final Activity activity, final String status) {
         activity.runOnUiThread(new Runnable() {
             public void run() {
-
-                AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
-                alertDialog.setTitle("Error");
-                alertDialog.setMessage(status);
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Continue", new DialogInterface.OnClickListener()
+            AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
+            alertDialog.setTitle("Error");
+            alertDialog.setMessage(status);
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Continue", new DialogInterface.OnClickListener()
+            {
+                public void onClick(DialogInterface arg0, int arg1)
                 {
-                    public void onClick(DialogInterface arg0, int arg1)
-                    {
-                        // continue to activity anyways
-                    }
-                });
+                    // continue to activity anyways
+                }
+            });
 
-                alertDialog.show();
+            alertDialog.show();
             }
         });
     }

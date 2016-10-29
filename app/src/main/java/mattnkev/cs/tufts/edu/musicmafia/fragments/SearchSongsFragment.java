@@ -5,11 +5,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -25,7 +25,7 @@ import mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity;
 public class SearchSongsFragment extends Fragment {
 
     private final ArrayList<String> mListViewSongValues = new ArrayList<>(), mListViewArtistValues = new ArrayList<>();
-    private MySimpleArrayAdapter mAdapter;
+    private SearchSongsAdapter mAdapter;
     private FragmentActivity faActivity;
     private SearchView mSearchView;
 
@@ -49,14 +49,14 @@ public class SearchSongsFragment extends Fragment {
                         String resp = Utils.attemptGET(Utils.SPOTIFY_SERVER_URL, "search",
                                 new String[]{"q", "type", "market"},
                                 new String[]{query, "track", "US"});
-                        final Utils.SpotifyResp spotifyResp = Utils.parseSpotifyResp(resp);
+                        final Utils.PlaylistData spotifyResp = Utils.parseSpotifyResp(resp);
 
                         if (spotifyResp != null && faActivity != null) {
                             faActivity.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    updateListView(spotifyResp.getSearchListViewSongs(),
-                                            spotifyResp.getSearchListViewArtists(),
-                                            spotifyResp.getSearchListViewURIs());
+                                    updateListView(spotifyResp.getSongs(),
+                                            spotifyResp.getArtists(),
+                                            spotifyResp.getURIs());
 
                                     mSearchView.clearFocus();
                                 }
@@ -80,6 +80,7 @@ public class SearchSongsFragment extends Fragment {
                 } else {
                     ((PlaylistMakingActivity)faActivity).setBottomBarVisibility(true);
                     mSearchView.setQuery("", false);
+                    mAdapter.resetBackgroundColors();
                 }
             }
         });
@@ -96,46 +97,49 @@ public class SearchSongsFragment extends Fragment {
             mListViewArtistValues.add("Artist: " + val);
         }
 
-        mAdapter = new MySimpleArrayAdapter(faActivity.getApplicationContext(),
+        mAdapter = new SearchSongsAdapter(faActivity.getApplicationContext(),
                 mListViewSongValues, mListViewArtistValues);
 
-        try {
+        if (listView != null)
             listView.setAdapter(mAdapter);
-        } catch (NullPointerException ex) {
-            Log.e("MainActivity", ex.toString());
-        }
+
 
         return rlLayout;
     }
 
     private void updateListView(final String[] songs, final String[] artists, final String[] URIs){
-        //mAdapter.clear();
-        for (String song : songs)
-        {
-            //mAdapter.insert(song, mAdapter.getCount());
-        }
-
         mAdapter.updateValues(songs, artists, URIs);
         mAdapter.notifyDataSetChanged();
     }
 
-    private class MySimpleArrayAdapter extends BaseAdapter {
+    private class SearchSongsAdapter extends BaseAdapter {
         private final Context context;
         private String[] songNames, artistNames, URIs;
+        private final int[] colors;
 
-        private MySimpleArrayAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
+        private SearchSongsAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
             super();
-            //super(context, -1, songNames);
             this.context = context;
             this.songNames = songNames.toArray(new String [songNames.size()]);
             this.artistNames = artistNames.toArray(new String [artistNames.size()]);
-            this.URIs = new String[20];
+            this.URIs = new String[Utils.MAX_LISTVIEW_LEN];
+            this.colors = new int[songNames.size()];
+            resetBackgroundColors();
         }
 
         private void updateValues(String[] songNames, String[] artistNames, String[] URIs) {
             this.songNames = songNames;
             this.artistNames = artistNames;
             this.URIs = URIs;
+        }
+
+        private void setBackgroundColor(int position, int c) {
+            colors[position] = c;
+        }
+
+        private void resetBackgroundColors() {
+            for (int i = 0; i < colors.length; i++)
+                colors[i] = ContextCompat.getColor(context, R.color.bb_darkBackgroundColor);
         }
 
         @Override
@@ -156,10 +160,11 @@ public class SearchSongsFragment extends Fragment {
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.list_view_layout_search_song, parent, false);
+            if (convertView==null) {
+                LayoutInflater inflater = (LayoutInflater) context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.list_view_layout_search_song, parent, false);
+            }
 
             TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
             TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
@@ -169,39 +174,38 @@ public class SearchSongsFragment extends Fragment {
 
             ImageView plusIcon = (ImageView) convertView.findViewById(R.id.plus_icon);
             plusIcon.setImageResource(R.drawable.public_domain_plus);
-            plusIcon.setOnClickListener(new MyClickListener(songNames[position], artistNames[position], URIs[position]));
+            plusIcon.setOnClickListener(new PlusClickListener(songNames[position], artistNames[position], URIs[position], position));
 
+            convertView.setBackgroundColor(colors[position]);
 
             return convertView;
         }
     }
 
-    private class MyClickListener implements View.OnClickListener {
+    private class PlusClickListener implements View.OnClickListener {
         private final String songName, artistName, URI;
+        private final int position;
 
-        private MyClickListener(String songName, String artistName, String uri){
+        private PlusClickListener(String songName, String artistName, String uri, int pos){
             this.songName = songName;
             this.artistName = artistName;
             this.URI = uri;
+            this.position = pos;
         }
 
         public void onClick(View v) {
-            addSongToServerPlaylist(songName, artistName, URI);
+            addSongToServerPlaylist(songName, artistName, URI, position);
         }
     }
 
-    private void addSongToServerPlaylist(final String songName, final String artistName, final String uri){
+    private void addSongToServerPlaylist(final String songName, final String artistName, final String uri, final int position){
         Thread thread = new Thread(new Runnable() {
 
             @Override
             public void run() {
 
-                Bundle extras = faActivity.getIntent().getExtras();
-                String eventName = "", password = "";
-                if (extras != null) {
-                    eventName = extras.getString("EVENT_NAME");
-                    password = extras.getString("PASSWORD");
-                }
+                Utils.EventData eventData = new Utils.EventData(faActivity);
+
                 JSONObject songData = new JSONObject();
                 try
                 {
@@ -213,10 +217,18 @@ public class SearchSongsFragment extends Fragment {
 
                 String status = Utils.attemptPOST("addSong",
                         new String[] {"EventName", "password", "song"},
-                        new String[] {eventName, password, songData.toString()});
+                        new String[] {eventData.getEventName(), eventData.getPassword(), songData.toString()});
 
-                //TODO: error message if status is bad
-                boolean dummy = status.equals("OK");
+                if (status.equals("OK")) {
+                    faActivity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            mAdapter.setBackgroundColor(position,
+                                    ContextCompat.getColor(faActivity.getApplicationContext(), R.color.bb_tabletRightBorderDark));
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+                else { Utils.displayMsg(faActivity, status); }
 
             }
         });

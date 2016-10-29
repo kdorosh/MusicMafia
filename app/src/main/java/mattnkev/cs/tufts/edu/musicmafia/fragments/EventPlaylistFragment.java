@@ -1,11 +1,13 @@
 package mattnkev.cs.tufts.edu.musicmafia.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
 
@@ -27,7 +28,7 @@ public class EventPlaylistFragment extends Fragment
     private final ArrayList<String>
             mListViewSongValues = new ArrayList<>(),
             mListViewArtistValues = new ArrayList<>();
-    private MySimpleArrayAdapter mAdapter;
+    private EventPlaylistAdapter mAdapter;
     private FragmentActivity faActivity;
 
     @Override
@@ -45,16 +46,14 @@ public class EventPlaylistFragment extends Fragment
             mListViewArtistValues.add("Artist: " + val);
         }
 
-        mAdapter = new MySimpleArrayAdapter(faActivity.getApplicationContext(),
-                mListViewSongValues, mListViewArtistValues);
+        // TODO: generic size, don't force initialize size and send songs twice
+        mAdapter = new EventPlaylistAdapter(faActivity.getApplicationContext(),
+                mListViewSongValues, mListViewArtistValues, mListViewSongValues);
 
-        try {
+        if (listView != null)
             listView.setAdapter(mAdapter);
-        }
-        catch (NullPointerException ex){
-            Log.e("MainActivity", ex.toString());
-        }
 
+        //TODO: pinger runs when server is up
         //startPinger();
 
         return rlLayout;
@@ -69,19 +68,23 @@ public class EventPlaylistFragment extends Fragment
         });
     }
 
-    private class MySimpleArrayAdapter extends ArrayAdapter<String> {
+    private class EventPlaylistAdapter extends ArrayAdapter<String> {
         private final Context context;
         private String[] songNames, artistNames, URIs;
+        private final int[] colors;
 
         private String getURI(int position){
             return URIs[position];
         }
 
-        private MySimpleArrayAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
+        private EventPlaylistAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames, ArrayList<String> URIs) {
             super(context, -1, songNames);
             this.context = context;
             this.songNames = songNames.toArray(new String [songNames.size()]);
             this.artistNames = artistNames.toArray(new String [artistNames.size()]);
+            this.URIs = URIs.toArray(new String[URIs.size()]);
+            this.colors = new int[songNames.size()];
+            resetBackgroundColors();
         }
 
         private void updateValues(String[] songNames, String[] artists, String[] uris){
@@ -90,41 +93,52 @@ public class EventPlaylistFragment extends Fragment
             this.URIs = uris;
         }
 
+        private void setBackgroundColor(int position, int c) {
+            colors[position] = c;
+        }
+
+        private void resetBackgroundColors(){
+            for (int i = 0; i < colors.length; i++)
+                colors[i] = ContextCompat.getColor(context, R.color.bb_darkBackgroundColor);
+        }
+
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            //if (convertView == null) {
+            if (convertView == null) {
 
                 LayoutInflater inflater = (LayoutInflater) context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.list_view_layout_event_playlist, parent, false);
+            }
 
-                TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
-                TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
-                TextView numberUpVotes = (TextView) convertView.findViewById(R.id.num_votes);
+            TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
+            TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
+            TextView numberUpVotes = (TextView) convertView.findViewById(R.id.num_votes);
 
-                songName.setText(songNames[position]);
-                artistName.setText(artistNames[position]);
+            songName.setText(songNames[position]);
+            artistName.setText(artistNames[position]);
 
-                ImageView upArrowImg = (ImageView) convertView.findViewById(R.id.up_arrow);
-                ImageView downArrowImg = (ImageView) convertView.findViewById(R.id.down_arrow);
+            ImageView upArrowImg = (ImageView) convertView.findViewById(R.id.up_arrow);
+            ImageView downArrowImg = (ImageView) convertView.findViewById(R.id.down_arrow);
 
-                upArrowImg.setImageResource(R.drawable.public_domain_up_arrow);
-                downArrowImg.setImageResource(R.drawable.public_domain_down_arrow);
+            upArrowImg.setImageResource(R.drawable.public_domain_up_arrow);
+            downArrowImg.setImageResource(R.drawable.public_domain_down_arrow);
 
-                upArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, 1, position));
-                downArrowImg.setOnClickListener(new MyClickListener(numberUpVotes, -1, position));
-            //}
+            upArrowImg.setOnClickListener(new VoteClickListener(numberUpVotes, 1, position));
+            downArrowImg.setOnClickListener(new VoteClickListener(numberUpVotes, -1, position));
+
+            convertView.setBackgroundColor(colors[position]);
 
             return convertView;
         }
     }
 
-    private class MyClickListener implements View.OnClickListener {
+    private class VoteClickListener implements View.OnClickListener {
         private final int delta_votes, position;
         private final TextView num_votes;
 
-        private MyClickListener(TextView num_votes, int delta_votes, int position) {
+        private VoteClickListener(TextView num_votes, int delta_votes, int position) {
             this.num_votes = num_votes;
             this.delta_votes = delta_votes;
             this.position = position;
@@ -145,22 +159,30 @@ public class EventPlaylistFragment extends Fragment
             public void run() {
 
                 try {
-                    Bundle extras = faActivity.getIntent().getExtras();
-                    String eventName = "", password = "";
-                    if (extras != null) {
-                        eventName = extras.getString("EVENT_NAME");
-                        password = extras.getString("PASSWORD");
-                    }
+                    Utils.EventData eventData = new Utils.EventData(faActivity);
 
                     JSONObject songData = new JSONObject();
                     songData.put("uri", mAdapter.getURI(position));
                     songData.put("val", delta_votes);
 
-                    Utils.attemptPOST("vote",
+                    final String resp = Utils.attemptPOST("vote",
                             new String[]{"EventName", "password", "song"},
-                            new String[]{eventName, password, songData.toString()});
+                            new String[]{eventData.getEventName(), eventData.getPassword(), songData.toString()});
+
+                    faActivity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            if (resp.equals("OK")) {
+                                mAdapter.setBackgroundColor(position, delta_votes == 1 ? Color.GREEN : Color.RED);
+                                mAdapter.notifyDataSetChanged();
+                            } else {
+                                Utils.displayMsg(faActivity, resp);
+                            }
+                        }
+                    });
                 }
-                catch (Exception ex) { Log.e("pushVoteToServer", ex.toString()); }
+                catch (Exception ex) {
+                    Log.e("pushVoteToServer", ex.toString());
+                }
 
             }
         });
@@ -198,36 +220,15 @@ public class EventPlaylistFragment extends Fragment
                         new String[] {"EventName", "password"},
                         new String[] {eventName, password});
 
-                try {
-                    JSONObject data = new JSONObject(resp);
-                    JSONObject eventData = data.getJSONObject("Event");
-                    if (data.getString("Status").equals("OK")) {
-                        //update playlist
-                        JSONArray songsJson = eventData.getJSONArray("songs");
-                        String[] songs = new String[Utils.MAX_LISTVIEW_LEN],
-                                 artists = new String[Utils.MAX_LISTVIEW_LEN],
-                                 uris = new String[Utils.MAX_LISTVIEW_LEN];
-                        for (int i = 0; i < songsJson.length(); i++) {
-                            JSONObject songObj = songsJson.getJSONObject(i);
-                            songs[i] = songObj.getString("name");
-                            artists[i] = songObj.getString("artist");
-                            uris[i] = songObj.getString("uri");
-                        }
-
-                        //TODO: dont force size to be 20 and force intialize everything
-                        for (int i = 0; i < Utils.MAX_LISTVIEW_LEN; i++) songs[i] = "Placeholder123";
-                        for (int i = 0; i < Utils.MAX_LISTVIEW_LEN; i++) artists[i] = "Placeholder123";
-                        for (int i = 0; i < Utils.MAX_LISTVIEW_LEN; i++) uris[i] = "Placeholder123";
-                        //for (String uri : uris) if (uri == null) uri = "Placeholder";
-                        //for (String artist : artists) if (artist == null) artist = "Placeholder";
-                        addToListView(songs, artists, uris);
-                    }
-                }
-                catch (Exception ex) { Log.e("queryDatabase", ex.toString()); Utils.displayMsg(faActivity, resp); }
+                Utils.PlaylistData playlist = Utils.parseCurrentPlaylist(resp, faActivity);
+                if (playlist != null)
+                    addToListView(playlist.getSongs(), playlist.getArtists(), playlist.getURIs());
 
             }
         });
         thread.start();
     }
+
+
 
 }

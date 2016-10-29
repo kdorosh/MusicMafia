@@ -128,8 +128,6 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             }
         }
 
-
-
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -143,7 +141,6 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             // kick off a background task to perform the user login attempt.
             mAuthTask = new UserLoginTask(eventName, password);
             mAuthTask.execute((Void) null);
-
 
         }
     }
@@ -240,10 +237,11 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
                 }
 
             } catch (Exception ex) {
+                // error message will be displayed via mStatus when this returns false
                 return false;
             }
 
-            return true;//TODO: return successfulLogin
+            return successfulLogin;
         }
 
         @Override
