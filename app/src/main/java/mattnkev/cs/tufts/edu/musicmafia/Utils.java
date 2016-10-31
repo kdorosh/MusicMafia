@@ -6,19 +6,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Base64;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.SecureRandom;
 
 /**
  * Created by Kevin on 10/21/2016.
@@ -29,7 +31,6 @@ import java.net.URL;
 public class Utils {
     public static final String SERVER_URL = "http://52.40.236.184:5000/";
     public static final String SPOTIFY_SERVER_URL = "https://api.spotify.com/v1/";
-    public static final int MAX_LISTVIEW_LEN = 20;
     public static final int PINGER_DELAY_SEC = 10;
     public static final int MIN_EVENT_NAME_LENGTH = 1;
     public static final int MIN_PASSWORD_LENGTH = 1;
@@ -37,24 +38,35 @@ public class Utils {
     private static final String SERVER_DOWN_RESP = "{ \"Status\": \"The server is down\" }";
 
     /*
- * Attempts a POST request to our server. params and args must match up
- *
- * If not called as part of an AsyncTask may need to be called on background thread
- */
-    public static String attemptPOST(String command, String[] params, String[] args) {
+    * Attempts a POST request to our server. params and args must match up
+    *
+    * If not called as part of an AsyncTask may need to be called on background thread
+    */
+    public static String attemptPOST(String command, String eventName, String password,
+                                     String[] params, String[] args) {
         HttpURLConnection conn = null;
         try {
             JSONObject postReqJSON = new JSONObject();
             if (params.length != args.length) { return "Invalid params/args"; }
 
-            for(int c = 0; c < params.length; c++)
-                postReqJSON.put(params[c], args[c]);
+            for (int c = 0; c < params.length; c++) {
+                JSONObject json = isJSONValid(args[c]);
+                if (json != null)
+                    postReqJSON.put(params[c], json);
+                else
+                    postReqJSON.put(params[c], args[c]);
+            }
 
             URL url = new URL(SERVER_URL + command);
             conn = (HttpURLConnection)url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
+
+            // encrypt event info and put in header
+            byte[] encryption = encode("EventName: " + eventName + " password: " + password);
+            String auth = Base64.encodeToString(encryption, 0);
+            conn.setRequestProperty("Authorization", auth);
 
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
             wr.write(postReqJSON.toString());
@@ -83,7 +95,8 @@ public class Utils {
  *
  * If not called as part of an AsyncTask may need to be called on background thread
  */
-    public static String attemptGET(String server, String command, String[] params, String[] args) {
+    public static String attemptGET(String server, String command, String eventName, String password,
+                                    String[] params, String[] args) {
         HttpURLConnection conn = null;
         try {
 
@@ -97,7 +110,15 @@ public class Utils {
             String urlString = server + command + argsGET;
             URL url = new URL(urlString);
             conn = (HttpURLConnection)url.openConnection();
-            InputStream in = conn.getInputStream();
+
+            if (server.equals(SERVER_URL)) {
+                // encrypt event info and put in header
+                byte[] encryption = encode("EventName: " + eventName + " password: " + password);
+                String auth = Base64.encodeToString(encryption, 0);
+                conn.setRequestProperty("Authorization", auth);
+            }
+
+            Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
             StringBuilder sb = new StringBuilder();
             for (int c; (c = in.read()) >= 0;)
                 sb.append((char)c);
@@ -131,17 +152,18 @@ public class Utils {
             JSONObject tracks = data.getJSONObject("tracks");
             JSONArray entries = tracks.getJSONArray("items");
 
-            final String[] searchListViewSongs = new String[MAX_LISTVIEW_LEN];
-            final String[] searchListViewArtists = new String[MAX_LISTVIEW_LEN];
-            final String[] searchListViewURIs = new String[MAX_LISTVIEW_LEN];
-            int minLen = Math.min(Utils.MAX_LISTVIEW_LEN, entries.length());
-            for (int i = 0; i < minLen; i++){
+            int len = entries.length();
+            final String[] searchListViewSongs = new String[len];
+            final String[] searchListViewArtists = new String[len];
+            final String[] searchListViewURIs = new String[len];
+
+            for (int i = 0; i < len; i++){
                 JSONObject entry = entries.getJSONObject(i);
                 searchListViewSongs[i] = entry.getString("name");
                 searchListViewURIs[i] = entry.getString("uri");
                 searchListViewArtists[i] = entry.getJSONObject("album").getJSONArray("artists").getJSONObject(0).getString("name");
             }
-            return new PlaylistData(searchListViewSongs, searchListViewArtists, searchListViewURIs);
+            return new PlaylistData(searchListViewSongs, searchListViewArtists, searchListViewURIs, null);
         }
         catch (Exception ex)
         {
@@ -170,18 +192,20 @@ public class Utils {
             if (data.getString("Status").equals("OK")) {
 
                 JSONArray songsJson = eventData.getJSONArray("songs");
-                String[] songs = new String[Utils.MAX_LISTVIEW_LEN],
-                        artists = new String[Utils.MAX_LISTVIEW_LEN],
-                        uris = new String[Utils.MAX_LISTVIEW_LEN];
-                int minLen = Math.min(Utils.MAX_LISTVIEW_LEN, songsJson.length());
-                for (int i = 0; i < minLen; i++) {
+                int len = songsJson.length();
+                String[] songs = new String[len],
+                        artists = new String[len],
+                        uris = new String[len];
+                int[] votes = new int[len];
+                for (int i = 0; i < len; i++) {
                     JSONObject songObj = songsJson.getJSONObject(i);
                     songs[i] = songObj.getString("name");
                     artists[i] = songObj.getString("artist");
                     uris[i] = songObj.getString("uri");
+                    votes[i] = Integer.parseInt(songObj.getString("val"));
                 }
 
-                return new PlaylistData(songs, artists, uris);
+                return new PlaylistData(songs, artists, uris, votes);
             }
             else {
                 displayMsg(faActivity, data.getString("Status"));
@@ -199,11 +223,13 @@ public class Utils {
         private final String[] searchListViewSongs;
         private final String[] searchListViewArtists;
         private final String[] searchListViewURIs;
+        private final int[] votes;
 
-        private PlaylistData(String[] songsList, String[] artists, String[] uris) {
+        private PlaylistData(String[] songsList, String[] artists, String[] uris, int[] v) {
             searchListViewSongs = songsList;
             searchListViewArtists = artists;
             searchListViewURIs = uris;
+            votes = v;
         }
 
         public String[] getSongs(){
@@ -213,6 +239,7 @@ public class Utils {
         public String[] getURIs(){
             return searchListViewURIs;
         }
+        public int[] getVotes() { return votes; }
     }
 
     public static class EventData {
@@ -236,22 +263,54 @@ public class Utils {
 
 
     public static void displayMsg(final Activity activity, final String status) {
-        activity.runOnUiThread(new Runnable() {
-            public void run() {
-            AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
-            alertDialog.setTitle("Error");
-            alertDialog.setMessage(status);
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Continue", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface arg0, int arg1)
-                {
-                    // continue to activity anyways
+
+        if (activity != null && !activity.isFinishing()) {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage(status);
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Continue", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        // continue to activity anyways
+                    }
+                });
+                alertDialog.show();
                 }
             });
+        }
+    }
 
-            alertDialog.show();
-            }
-        });
+    /* Private Utils methods */
+
+    private static byte[] encode(String toBeEncoded) {
+        // convert secret text to byte array
+        final byte[] secret = toBeEncoded.getBytes();
+        final byte[] encoded = new byte[secret.length];
+
+        // Generate random key (has to be exchanged)
+        final byte[] key = new byte[secret.length];
+        new SecureRandom().nextBytes(key);
+
+        // Encrypt
+        for (int i = 0; i < secret.length; i++) {
+            encoded[i] = (byte) (secret[i] ^ key[i]);
+        }
+
+        // Append key to encoded
+        byte[] ret = new byte[encoded.length + key.length];
+        System.arraycopy(encoded,0,ret,0,encoded.length);
+        System.arraycopy(key,0,ret,encoded.length,key.length);
+
+        return ret;
+    }
+
+    private static JSONObject isJSONValid(String test) {
+        try {
+            return new JSONObject(test);
+        } catch (JSONException ex) {
+            return null;
+        }
     }
 
 }

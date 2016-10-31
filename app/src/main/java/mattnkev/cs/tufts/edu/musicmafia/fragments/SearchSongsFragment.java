@@ -17,14 +17,12 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import org.json.JSONObject;
-import java.util.ArrayList;
 import mattnkev.cs.tufts.edu.musicmafia.R;
 import mattnkev.cs.tufts.edu.musicmafia.Utils;
 import mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity;
 
 public class SearchSongsFragment extends Fragment {
 
-    private final ArrayList<String> mListViewSongValues = new ArrayList<>(), mListViewArtistValues = new ArrayList<>();
     private SearchSongsAdapter mAdapter;
     private FragmentActivity faActivity;
     private SearchView mSearchView;
@@ -47,6 +45,7 @@ public class SearchSongsFragment extends Fragment {
                     @Override
                     public void run() {
                         String resp = Utils.attemptGET(Utils.SPOTIFY_SERVER_URL, "search",
+                                null, null, //eventName and password not needed for spotify query
                                 new String[]{"q", "type", "market"},
                                 new String[]{query, "track", "US"});
                         final Utils.PlaylistData spotifyResp = Utils.parseSpotifyResp(resp);
@@ -89,16 +88,8 @@ public class SearchSongsFragment extends Fragment {
         ListView listView = (ListView) rlLayout.findViewById(R.id.main_list_view);
 
 
-        String[] values = new String[Utils.MAX_LISTVIEW_LEN];
-        for (int c = 0; c < Utils.MAX_LISTVIEW_LEN; c++)
-            values[c] = "placeholder"+c;
-        for (String val : values) {
-            mListViewSongValues.add(val);
-            mListViewArtistValues.add("Artist: " + val);
-        }
-
         mAdapter = new SearchSongsAdapter(faActivity.getApplicationContext(),
-                mListViewSongValues, mListViewArtistValues);
+                new String[0], new String[0], new String[0], new int[0]);
 
         if (listView != null)
             listView.setAdapter(mAdapter);
@@ -115,15 +106,15 @@ public class SearchSongsFragment extends Fragment {
     private class SearchSongsAdapter extends BaseAdapter {
         private final Context context;
         private String[] songNames, artistNames, URIs;
-        private final int[] colors;
+        private int[] colors;
 
-        private SearchSongsAdapter(Context context, ArrayList<String> songNames, ArrayList<String> artistNames) {
+        private SearchSongsAdapter(Context context, String[] songs, String[] artists, String[] uris, int[] colors) {
             super();
             this.context = context;
-            this.songNames = songNames.toArray(new String [songNames.size()]);
-            this.artistNames = artistNames.toArray(new String [artistNames.size()]);
-            this.URIs = new String[Utils.MAX_LISTVIEW_LEN];
-            this.colors = new int[songNames.size()];
+            this.songNames = songs;//songNames.toArray(new String [songNames.size()]);
+            this.artistNames = artists;//artistNames.toArray(new String [artistNames.size()]);
+            this.URIs = uris;//new String[Utils.MAX_LISTVIEW_LEN];
+            this.colors = colors;//new int[songNames.size()];
             resetBackgroundColors();
         }
 
@@ -131,6 +122,7 @@ public class SearchSongsFragment extends Fragment {
             this.songNames = songNames;
             this.artistNames = artistNames;
             this.URIs = URIs;
+            this.colors = new int[songNames.length];
         }
 
         private void setBackgroundColor(int position, int c) {
@@ -215,20 +207,31 @@ public class SearchSongsFragment extends Fragment {
                 }
                 catch (Exception ex) { Log.e("SearchSongsFragment", ex.toString()); }
 
-                String status = Utils.attemptPOST("addSong",
-                        new String[] {"EventName", "password", "song"},
-                        new String[] {eventData.getEventName(), eventData.getPassword(), songData.toString()});
+                faActivity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        mAdapter.setBackgroundColor(position,
+                                ContextCompat.getColor(faActivity.getApplicationContext(), R.color.bb_tabletRightBorderDark));
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
 
-                if (status.equals("OK")) {
-                    faActivity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            mAdapter.setBackgroundColor(position,
-                                    ContextCompat.getColor(faActivity.getApplicationContext(), R.color.bb_tabletRightBorderDark));
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-                else { Utils.displayMsg(faActivity, status); }
+                String status = Utils.attemptPOST("addSong",
+                        eventData.getEventName(), eventData.getPassword(),
+                        new String[] {"song"},
+                        new String[] {songData.toString()});
+
+                status = Utils.parseRespForStatus(status);
+
+                final int color = status.equals("OK") ? R.color.green : R.color.red;
+                faActivity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        mAdapter.setBackgroundColor(position,
+                                ContextCompat.getColor(faActivity.getApplicationContext(), color));
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+
+                if (!status.equals("OK")) { Utils.displayMsg(faActivity, status); }
 
             }
         });

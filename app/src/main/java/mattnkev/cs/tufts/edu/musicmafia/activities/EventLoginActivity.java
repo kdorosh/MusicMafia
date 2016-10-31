@@ -151,6 +151,7 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
         intent.putExtra("EVENT_NAME", eventName);
         intent.putExtra("PASSWORD", password);
         startActivity(intent);
+        finish();
     }
 
     private boolean isEventNameValid(String eventName) {
@@ -219,8 +220,9 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
             try {
                 if (mIsHost) {
                     String resp = Utils.attemptPOST("create",
-                            new String[]{"EventName", "password"},
-                            new String[] {mEventName, mPassword});
+                            mEventName, mPassword,
+                            new String[] {},
+                            new String[] {});
                     mStatus = Utils.parseRespForStatus(resp);
                     if (mStatus.equals("OK")){
                         successfulLogin = true;
@@ -228,8 +230,9 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
                 }
                 else {
                     String resp = Utils.attemptGET(Utils.SERVER_URL, "guestLogin",
-                            new String[]{"EventName", "password"},
-                            new String[] {mEventName, mPassword});
+                            mEventName, mPassword,
+                            new String[] {},
+                            new String[] {});
                     mStatus = Utils.parseRespForStatus(resp);
                     if (mStatus.equals("OK")){
                         successfulLogin = true;

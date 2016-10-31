@@ -22,6 +22,7 @@ public class ExampleUnitTest {
 
     private boolean querySpotifyServerTest() {
         String resp = Utils.attemptGET(Utils.SPOTIFY_SERVER_URL, "search",
+                null, null, //eventName and password not used in spotify query
                 new String[]{"q", "type", "market"},
                 new String[]{"mooo", "track", "US"});
         return expResp.equals(resp);

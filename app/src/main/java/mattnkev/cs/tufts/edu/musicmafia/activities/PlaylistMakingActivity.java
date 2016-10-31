@@ -105,9 +105,10 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
                     @Override
                     public void run() {
                         String status = Utils.attemptGET(Utils.SERVER_URL, "createPlaylist",
-                        new String[]{"EventName", "password", "AccessToken", "redirect_uri"},
-                        new String[]{eventData.getEventName(), eventData.getPassword(), response.getAccessToken(), REDIRECT_URI});
-
+                                eventData.getEventName(), eventData.getPassword(),
+                                new String[]{"AccessToken", "redirect_uri"},
+                                new String[]{ response.getAccessToken(), REDIRECT_URI});
+                        status = Utils.parseRespForStatus(status);
                         if (!status.equals("OK"))
                             Utils.displayMsg(PlaylistMakingActivity.this, status);
 

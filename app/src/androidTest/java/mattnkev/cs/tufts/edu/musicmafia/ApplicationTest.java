@@ -51,4 +51,7 @@ public class ApplicationTest {
         intended(hasComponent(new ComponentName(getTargetContext(), PlaylistMakingActivity.class)));
 
     }
+
+// TODO: add non ASCII(search song and add first) test
+
 }

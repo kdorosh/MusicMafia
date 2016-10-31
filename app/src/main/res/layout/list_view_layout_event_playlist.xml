@@ -26,8 +26,7 @@
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@id/down_arrow"
         android:layout_toStartOf="@id/down_arrow"
-        android:contentDescription="@string/number_up_votes"
-        android:text="@string/default_num_votes" />
+        android:contentDescription="@string/number_up_votes" />
 
     <ImageView
         android:id="@+id/up_arrow"
