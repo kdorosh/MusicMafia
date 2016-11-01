@@ -19,7 +19,6 @@ public class ExampleUnitTest {
             throw new RuntimeException();
     }
 
-
     private boolean querySpotifyServerTest() {
         String resp = Utils.attemptGET(Utils.SPOTIFY_SERVER_URL, "search",
                 null, null, //eventName and password not used in spotify query
@@ -198,8 +197,4 @@ public class ExampleUnitTest {
             "    \"total\" : 2\n" +
             "  }\n" +
             "}";
-
-
-
-
 }
