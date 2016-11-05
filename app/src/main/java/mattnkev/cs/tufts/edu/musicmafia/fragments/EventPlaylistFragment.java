@@ -11,7 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -58,33 +58,34 @@ public class EventPlaylistFragment extends Fragment
         });
     }
 
-    private class EventPlaylistAdapter extends ArrayAdapter<String> {
+    private class EventPlaylistAdapter extends BaseAdapter {
         private final Context context;
         private String[] songNames, artistNames, URIs;
-        private final int[] colors;
-        private int[] mVotes;
+        private int[] colors, mVotes;
 
         private String getURI(int position){
             return URIs[position];
         }
 
         private EventPlaylistAdapter(Context context, String[] songs, String[] artists, String[] uris) {
-            super(context, -1, songs);
+            super();
             this.context = context;
             this.songNames = songs;
             this.artistNames = artists;
             this.URIs = uris;
             this.colors = new int[songNames.length];
             resetBackgroundColors();
-            mVotes = new int[songNames.length];
+            this.mVotes = new int[songNames.length];
         }
 
-        private void updateValues(String[] songNames, String[] artists, String[] uris, int[] votes){
+        private void updateValues(final String[] songNames, final String[] artists, final String[] uris, final int[] votes){
             updateCache(this.URIs, uris);
             this.songNames = songNames;
             this.artistNames = artists;
             this.URIs = uris;
-            mVotes = votes;
+            this.mVotes = votes;
+            this.colors = new int[songNames.length];
+            resetBackgroundColors();
         }
 
         private void setBackgroundColor(int position, int c) {
@@ -92,8 +93,31 @@ public class EventPlaylistFragment extends Fragment
         }
 
         private void resetBackgroundColors(){
-            for (int i = 0; i < colors.length; i++)
-                colors[i] = ContextCompat.getColor(context, R.color.bb_darkBackgroundColor);
+            for (int i = 0; i < colors.length; i++) {
+                int color;
+                if (cachedVoteStates[i] == VOTE_STATE.UP_VOTE)
+                    color = R.color.green;
+                else if (cachedVoteStates[i] == VOTE_STATE.DOWN_VOTE)
+                    color = R.color.red;
+                else
+                    color = R.color.bb_darkBackgroundColor;
+                colors[i] = ContextCompat.getColor(context, color);
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return songNames.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return songNames[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
         }
 
         @NonNull
@@ -108,7 +132,7 @@ public class EventPlaylistFragment extends Fragment
 
             TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
             TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
-            TextView numberUpVotes = (TextView) convertView.findViewById(R.id.num_votes);
+            TextView numberUpVotes =(TextView) convertView.findViewById(R.id.num_votes);
 
             songName.setText(songNames[position]);
             artistName.setText(artistNames[position]);
@@ -120,8 +144,8 @@ public class EventPlaylistFragment extends Fragment
             upArrowImg.setImageResource(R.drawable.public_domain_up_arrow);
             downArrowImg.setImageResource(R.drawable.public_domain_down_arrow);
 
-            upArrowImg.setOnClickListener(new VoteClickListener(numberUpVotes, 1, position));
-            downArrowImg.setOnClickListener(new VoteClickListener(numberUpVotes, -1, position));
+            upArrowImg.setOnClickListener(new VoteClickListener(1, position));
+            downArrowImg.setOnClickListener(new VoteClickListener(-1, position));
 
             convertView.setBackgroundColor(colors[position]);
 
@@ -131,23 +155,27 @@ public class EventPlaylistFragment extends Fragment
 
     private class VoteClickListener implements View.OnClickListener {
         private final int delta_votes, position;
-        private final TextView num_votes;
 
-        private VoteClickListener(TextView num_votes, int delta_votes, int position) {
-            this.num_votes = num_votes;
+        private VoteClickListener(int delta_votes, int position) {
             this.delta_votes = delta_votes;
             this.position = position;
         }
 
         public void onClick(View v) {
-            int cur_votes = Integer.parseInt((String) num_votes.getText());
-
             if (cachedVoteStates[position] == VOTE_STATE.NO_VOTE ||
                     cachedVoteStates[position] == VOTE_STATE.UP_VOTE && delta_votes == -1 ||
                     cachedVoteStates[position] == VOTE_STATE.DOWN_VOTE && delta_votes == 1) {
-                cur_votes += delta_votes;
-                num_votes.setText(String.valueOf(cur_votes));
-                pushVoteToServer(delta_votes, position);
+
+                // changing vote from previous value, double delta val to counteract previous vote
+                int change_votes_val = delta_votes;
+                if(cachedVoteStates[position] != VOTE_STATE.NO_VOTE)
+                    change_votes_val = delta_votes * 2;
+
+                mAdapter.mVotes[position] += change_votes_val;
+                pushVoteToServer(change_votes_val, position);
+            }
+            else {
+                Utils.displayMsg(faActivity, "Cannot vote twice the same way");
             }
         }
     }
@@ -156,16 +184,20 @@ public class EventPlaylistFragment extends Fragment
     // Assumes there are no duplicate URIs in the cache
     private void updateCache(String[] origUris, String[] newUris) {
         VOTE_STATE[] newCache = new VOTE_STATE[newUris.length];
+
+        // initialize to NO_VOTE
+        for (int c = 0; c < newCache.length; c++)
+            newCache[c] = VOTE_STATE.NO_VOTE;
+
         // for each URI in old data
         for (int origIndex = 0; origIndex < origUris.length; origIndex++) {
             // for each URI in new data
             for (int newIndex = 0; newIndex < newUris.length; newIndex++) {
                 // if found, carry over voting cache data
                 // else, enable voting
-                if (newUris[newIndex].equals(origUris[origIndex])) {
+                if (newUris[newIndex].equals(origUris[origIndex]) &&
+                        origIndex < cachedVoteStates.length &&  cachedVoteStates[origIndex] != null) {
                     newCache[newIndex] = cachedVoteStates[origIndex];
-                } else {
-                    newCache[newIndex] = VOTE_STATE.NO_VOTE;
                 }
             }
         }
@@ -185,15 +217,30 @@ public class EventPlaylistFragment extends Fragment
                     songData.put("uri", mAdapter.getURI(position));
                     songData.put("val", delta_votes);
 
+                    faActivity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            mAdapter.setBackgroundColor(position,
+                                    ContextCompat.getColor(faActivity.getApplicationContext(), R.color.bb_tabletRightBorderDark));
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
+
                     final String resp = Utils.attemptPOST("vote",
                             eventData.getEventName(), eventData.getPassword(),
                             new String[]{"song"},
                             new String[]{songData.toString()});
+
                     final String status = Utils.parseRespForStatus(resp);
                     faActivity.runOnUiThread(new Runnable() {
                         public void run() {
+                            final int color = delta_votes == 1 ? R.color.green : R.color.red;
                             if (status.equals("OK")) {
-                                mAdapter.setBackgroundColor(position, delta_votes == 1 ? R.color.green : R.color.red);
+
+                                // we've voted! cache value so we cannot vote again
+                                VOTE_STATE vote_state = delta_votes == 1 ? VOTE_STATE.UP_VOTE : VOTE_STATE.DOWN_VOTE;
+                                cachedVoteStates[position] = vote_state;
+
+                                mAdapter.setBackgroundColor(position, ContextCompat.getColor(faActivity.getApplicationContext(), color));
                                 mAdapter.notifyDataSetChanged();
                             } else {
                                 Utils.displayMsg(faActivity, resp);
@@ -202,6 +249,7 @@ public class EventPlaylistFragment extends Fragment
                     });
                 }
                 catch (Exception ex) {
+                    Utils.displayMsg(faActivity, ex.toString());
                     Log.e("pushVoteToServer", ex.toString());
                 }
 

@@ -3,9 +3,8 @@
         id="@+id/event_playlist"
         title="Event Playlist" />
     <tab
-        id="@+id/search_artists"
-        icon="@drawable/pause"
-        title="Search Artists" />
+        id="@+id/now_playing"
+        title="Now Playing" />
     <tab
         id="@+id/search_songs"
         title="Search Songs" />

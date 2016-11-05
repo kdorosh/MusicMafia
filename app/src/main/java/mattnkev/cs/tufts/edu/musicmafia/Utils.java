@@ -65,7 +65,7 @@ public class Utils {
 
             // encrypt event info and put in header
             byte[] encryption = encode("EventName: " + eventName + " password: " + password);
-            String auth = Base64.encodeToString(encryption, 0);
+            String auth = Base64.encodeToString(encryption, Base64.NO_WRAP);
             conn.setRequestProperty("Authorization", auth);
 
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
@@ -114,7 +114,7 @@ public class Utils {
             if (server.equals(SERVER_URL)) {
                 // encrypt event info and put in header
                 byte[] encryption = encode("EventName: " + eventName + " password: " + password);
-                String auth = Base64.encodeToString(encryption, 0);
+                String auth = Base64.encodeToString(encryption, Base64.NO_WRAP);
                 conn.setRequestProperty("Authorization", auth);
             }
 

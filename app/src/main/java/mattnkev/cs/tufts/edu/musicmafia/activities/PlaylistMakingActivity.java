@@ -27,6 +27,7 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 import mattnkev.cs.tufts.edu.musicmafia.R;
 import mattnkev.cs.tufts.edu.musicmafia.Utils;
 import mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment;
+import mattnkev.cs.tufts.edu.musicmafia.fragments.NowPlayingFragment;
 import mattnkev.cs.tufts.edu.musicmafia.fragments.SearchSongsFragment;
 
 public class PlaylistMakingActivity extends AppCompatActivity implements
@@ -39,6 +40,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
     private final FragmentManager mFragmentManager = getSupportFragmentManager();
     private final Fragment mEventPlaylistFragment = new EventPlaylistFragment();
     private final Fragment mSearchSongsFragment = new SearchSongsFragment();
+    private final Fragment mNowPlayingFragment = new NowPlayingFragment();
     private BottomBar mBottomBar;
 
     // Request code that will be used to verify if the result comes from correct activity
@@ -52,6 +54,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
         mFragmentManager.beginTransaction().add(R.id.listFragment, mEventPlaylistFragment).commit();
         mFragmentManager.beginTransaction().add(R.id.listFragment, mSearchSongsFragment).commit();
+        mFragmentManager.beginTransaction().add(R.id.listFragment, mNowPlayingFragment).commit();
 
         if (Utils.isHost(getIntent())) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
@@ -72,16 +75,23 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
                     mFragmentManager.beginTransaction()
                             //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                             .hide(mSearchSongsFragment)
+                            .hide(mNowPlayingFragment)
                             .show(mEventPlaylistFragment)
                             .commit();
                 }
-//              else if (tabId == R.id.search_artists) {
-//                    //TODO: add search fragment for artists
-//                }
+                else if (tabId == R.id.now_playing) {
+                    mFragmentManager.beginTransaction()
+                            //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                            .hide(mEventPlaylistFragment)
+                            .hide(mSearchSongsFragment)
+                            .show(mNowPlayingFragment)
+                            .commit();
+                }
                 else if (tabId == R.id.search_songs) {
                     mFragmentManager.beginTransaction()
                             //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                             .hide(mEventPlaylistFragment)
+                            .hide(mNowPlayingFragment)
                             .show(mSearchSongsFragment)
                             .commit();
                 }
