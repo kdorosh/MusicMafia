@@ -19,6 +19,7 @@ import android.widget.TextView;
 import org.json.JSONObject;
 
 import mattnkev.cs.tufts.edu.musicmafia.R;
+import mattnkev.cs.tufts.edu.musicmafia.SongData;
 import mattnkev.cs.tufts.edu.musicmafia.Utils;
 import mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity;
 
@@ -36,8 +37,7 @@ public class EventPlaylistFragment extends Fragment
 
         ListView listView = (ListView)rlLayout.findViewById(R.id.main_list_view);
 
-        mAdapter = new EventPlaylistAdapter(faActivity.getApplicationContext(),
-                new String[0], new String[0], new String[0]);
+        mAdapter = new EventPlaylistAdapter(faActivity.getApplicationContext(), new SongData[0]);
 
         if (listView != null)
             listView.setAdapter(mAdapter);
@@ -47,39 +47,16 @@ public class EventPlaylistFragment extends Fragment
         return rlLayout;
     }
 
-    public String getSongUri(int position){
-        if (mAdapter.URIs != null)
-            return position < mAdapter.URIs.length ? mAdapter.getURI(position) : null;
-        return null;
-    }
-
-    public int getDuration(int position) {
-        if (mAdapter.mDurations != null)
-            return position < mAdapter.mDurations.length ? mAdapter.getDuration(position) : 0;
-        return 0;
-    }
-
-    public String getAlbumArt(int position){
-        if (mAdapter.albums != null)
-            return position < mAdapter.albums.length ? mAdapter.getAlbum(position) : null;
-        return null;
-    }
-
-    public String getSongName(int position){
-        if (mAdapter.songNames != null)
-            return position < mAdapter.songNames.length ? mAdapter.getSong(position) : null;
+    public SongData getSongsData(int position){
+        if (mAdapter.songsData != null)
+            return position < mAdapter.songsData.length ? mAdapter.songsData[position] : null;
         return null;
     }
 
     private void updateListView(final Utils.PlaylistData playlistData){
         faActivity.runOnUiThread(new Runnable() {
             public void run() {
-                mAdapter.updateValues(playlistData.getSongs(),
-                        playlistData.getArtists(),
-                        playlistData.getURIs(),
-                        playlistData.getAlbumArts(),
-                        playlistData.getDurations(),
-                        playlistData.getVotes());
+                mAdapter.updateValues(playlistData.getSongDatas());
                 mAdapter.notifyDataSetChanged();
             }
         });
@@ -87,41 +64,25 @@ public class EventPlaylistFragment extends Fragment
 
     private class EventPlaylistAdapter extends BaseAdapter {
         private final Context context;
-        private String[] songNames, artistNames, URIs, albums;
-        private int[] colors, mVotes, mDurations;
+        private SongData[] songsData;
+        private int[] colors;
 
-        private String getURI(int position){
-            return URIs[position];
-        }
-        private String getAlbum(int position) { return albums[position]; }
-        private String getSong(int position) { return songNames[position]; }
-        private int getDuration(int position){
-            return mDurations[position];
+        private SongData getSongsData(int position){
+            return songsData[position];
         }
 
-        private EventPlaylistAdapter(Context context, String[] songs, String[] artists, String[] uris) {
+        private EventPlaylistAdapter(Context context, SongData[] songs) {
             super();
             this.context = context;
-            this.songNames = songs;
-            this.artistNames = artists;
-            this.URIs = uris;
-            this.albums = new String[songNames.length];
-            this.colors = new int[songNames.length];
+            this.songsData = songs;
+            this.colors = new int[songs.length];
             resetBackgroundColors();
-            this.mVotes = new int[songNames.length];
-            this.mDurations = new int[songNames.length];
         }
 
-        private void updateValues(final String[] songNames, final String[] artists, final String[] uris,
-                                  final String[] albumArts, final int[] durations, final int[] votes){
-            updateCache(this.URIs, uris);
-            this.songNames = songNames;
-            this.artistNames = artists;
-            this.URIs = uris;
-            this.albums = albumArts;
-            this.mDurations = durations;
-            this.mVotes = votes;
-            this.colors = new int[songNames.length];
+        private void updateValues(final SongData[] songs){
+            updateCache(this.songsData, songs);
+            this.songsData = songs;
+            this.colors = new int[songs.length];
             resetBackgroundColors();
         }
 
@@ -144,12 +105,12 @@ public class EventPlaylistFragment extends Fragment
 
         @Override
         public int getCount() {
-            return songNames.length;
+            return songsData.length;
         }
 
         @Override
         public Object getItem(int position) {
-            return songNames[position];
+            return songsData[position];
         }
 
         @Override
@@ -171,9 +132,9 @@ public class EventPlaylistFragment extends Fragment
             TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
             TextView numberUpVotes = (TextView) convertView.findViewById(R.id.num_votes);
 
-            songName.setText(songNames[position]);
-            artistName.setText(artistNames[position]);
-            numberUpVotes.setText(String.valueOf(mVotes[position]));
+            songName.setText(songsData[position].getSongName());
+            artistName.setText(songsData[position].getArtist());
+            numberUpVotes.setText(String.valueOf(songsData[position].getVotes()));
 
             ImageView upArrowImg = (ImageView) convertView.findViewById(R.id.up_arrow);
             ImageView downArrowImg = (ImageView) convertView.findViewById(R.id.down_arrow);
@@ -208,7 +169,8 @@ public class EventPlaylistFragment extends Fragment
                 if(cachedVoteStates[position] != VOTE_STATE.NO_VOTE)
                     change_votes_val = delta_votes * 2;
 
-                mAdapter.mVotes[position] += change_votes_val;
+                int newVotes = mAdapter.getSongsData(position).getVotes() + change_votes_val;
+                mAdapter.getSongsData(position).setVotes(newVotes);
                 pushVoteToServer(change_votes_val, position);
             }
             else {
@@ -218,20 +180,20 @@ public class EventPlaylistFragment extends Fragment
     }
 
     // Assumes there are no duplicate URIs in the cache
-    private void updateCache(String[] origUris, String[] newUris) {
-        VOTE_STATE[] newCache = new VOTE_STATE[newUris.length];
+    private void updateCache(SongData[] origData, SongData[] newData) {
+        VOTE_STATE[] newCache = new VOTE_STATE[newData.length];
 
         // initialize to NO_VOTE
         for (int c = 0; c < newCache.length; c++)
             newCache[c] = VOTE_STATE.NO_VOTE;
 
         // for each URI in old data
-        for (int origIndex = 0; origIndex < origUris.length; origIndex++) {
+        for (int origIndex = 0; origIndex < origData.length; origIndex++) {
             // for each URI in new data
-            for (int newIndex = 0; newIndex < newUris.length; newIndex++) {
+            for (int newIndex = 0; newIndex < newData.length; newIndex++) {
                 // if found, carry over voting cache data
                 // else, enable voting
-                if (newUris[newIndex].equals(origUris[origIndex]) &&
+                if (newData[newIndex].getURI().equals(origData[origIndex].getURI()) &&
                         origIndex < cachedVoteStates.length &&  cachedVoteStates[origIndex] != null) {
                     newCache[newIndex] = cachedVoteStates[origIndex];
                 }
@@ -250,7 +212,7 @@ public class EventPlaylistFragment extends Fragment
                     Utils.EventData eventData = new Utils.EventData(faActivity);
 
                     JSONObject songData = new JSONObject();
-                    songData.put("uri", mAdapter.getURI(position));
+                    songData.put("uri", mAdapter.getSongsData(position).getURI());
                     songData.put("val", delta_votes);
 
                     faActivity.runOnUiThread(new Runnable() {

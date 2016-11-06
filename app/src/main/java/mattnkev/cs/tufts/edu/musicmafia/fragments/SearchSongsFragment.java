@@ -18,6 +18,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import org.json.JSONObject;
 import mattnkev.cs.tufts.edu.musicmafia.R;
+import mattnkev.cs.tufts.edu.musicmafia.SongData;
 import mattnkev.cs.tufts.edu.musicmafia.Utils;
 import mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity;
 
@@ -53,11 +54,7 @@ public class SearchSongsFragment extends Fragment {
                         if (spotifyResp != null && faActivity != null) {
                             faActivity.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    updateListView(spotifyResp.getSongs(),
-                                            spotifyResp.getArtists(),
-                                            spotifyResp.getURIs(),
-                                            spotifyResp.getAlbumArts(),
-                                            spotifyResp.getDurations());
+                                    updateListView(spotifyResp.getSongDatas());
                                     mSearchView.clearFocus();
                                 }
                             });
@@ -90,7 +87,7 @@ public class SearchSongsFragment extends Fragment {
 
 
         mAdapter = new SearchSongsAdapter(faActivity.getApplicationContext(),
-                new String[0], new String[0], new String[0], new String[0], new int[0], new int[0]);
+                new SongData[0]);
 
         if (listView != null)
             listView.setAdapter(mAdapter);
@@ -99,38 +96,27 @@ public class SearchSongsFragment extends Fragment {
         return rlLayout;
     }
 
-    private void updateListView(final String[] songs, final String[] artists, final String[] URIs,
-                                final String[] albumArts, final int[] durations){
-        mAdapter.updateValues(songs, artists, URIs, albumArts, durations);
+    private void updateListView(final SongData[] songsData){
+        mAdapter.updateValues(songsData);
         mAdapter.notifyDataSetChanged();
     }
 
     private class SearchSongsAdapter extends BaseAdapter {
         private final Context context;
-        private String[] songNames, artistNames, URIs, albumArts;
-        private int[] colors, durations;
+        private SongData[] songsData;
+        private int[] colors;
 
-        private SearchSongsAdapter(Context context, String[] songs, String[] artists, String[] uris, String[] albums,
-                                   int[] colors, int[] songDurations) {
+        private SearchSongsAdapter(Context context, SongData[] songs) {
             super();
             this.context = context;
-            this.songNames = songs;
-            this.artistNames = artists;
-            this.URIs = uris;
-            this.colors = colors;
-            this.durations = songDurations;
-            this.albumArts = albums;
+            this.songsData = songs;
+            this.colors = new int[songs.length];
             resetBackgroundColors();
         }
 
-        private void updateValues(String[] songNames, String[] artistNames, String[] URIs,
-                                  String[] albums, int[] songDurations) {
-            this.songNames = songNames;
-            this.artistNames = artistNames;
-            this.URIs = URIs;
-            this.colors = new int[songNames.length];
-            this.durations = songDurations;
-            this.albumArts = albums;
+        private void updateValues(SongData[] songs) {
+            this.songsData = songs;
+            this.colors = new int[songs.length];
         }
 
         private void setBackgroundColor(int position, int c) {
@@ -144,12 +130,12 @@ public class SearchSongsFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return songNames.length;
+            return songsData.length;
         }
 
         @Override
         public Object getItem(int position) {
-            return songNames[position];
+            return songsData[position];
         }
 
         @Override
@@ -169,13 +155,12 @@ public class SearchSongsFragment extends Fragment {
             TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
             TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
 
-            songName.setText(songNames[position]);
-            artistName.setText(artistNames[position]);
+            songName.setText(songsData[position].getSongName());
+            artistName.setText(songsData[position].getArtist());
 
             ImageView plusIcon = (ImageView) convertView.findViewById(R.id.plus_icon);
             plusIcon.setImageResource(R.drawable.public_domain_plus);
-            plusIcon.setOnClickListener(new PlusClickListener(songNames[position], artistNames[position],
-                    URIs[position], albumArts[position], position, durations[position]));
+            plusIcon.setOnClickListener(new PlusClickListener(songsData[position], position));
 
             convertView.setBackgroundColor(colors[position]);
 
@@ -184,26 +169,20 @@ public class SearchSongsFragment extends Fragment {
     }
 
     private class PlusClickListener implements View.OnClickListener {
-        private final String songName, artistName, URI, albumArt;
-        private final int position, duration;
+        private final SongData songData;
+        private final int position;
 
-        private PlusClickListener(String songName, String artistName, String uri, String album,
-                                  int pos, int dur){
-            this.songName = songName;
-            this.artistName = artistName;
-            this.URI = uri;
+        private PlusClickListener(SongData song, int pos){
+            this.songData = song;
             this.position = pos;
-            this.duration = dur;
-            this.albumArt = album;
         }
 
         public void onClick(View v) {
-            addSongToServerPlaylist(songName, artistName, URI, albumArt, position,  duration);
+            addSongToServerPlaylist(songData, position);
         }
     }
 
-    private void addSongToServerPlaylist(final String songName, final String artistName, final String uri,
-                                         final String albumArt, final int position, final int duration){
+    private void addSongToServerPlaylist(final SongData song, final int position){
         Thread thread = new Thread(new Runnable() {
 
             @Override
@@ -214,11 +193,11 @@ public class SearchSongsFragment extends Fragment {
                 JSONObject songData = new JSONObject();
                 try
                 {
-                    songData.put("name", songName);
-                    songData.put("artist", artistName);
-                    songData.put("uri", uri);
-                    songData.put("ms_duration", String.valueOf(duration));
-                    songData.put("album_art", albumArt);
+                    songData.put("name", song.getSongName());
+                    songData.put("artist", song.getArtist());
+                    songData.put("uri", song.getURI());
+                    songData.put("ms_duration", String.valueOf(song.getDuration()));
+                    songData.put("album_art", song.getAlbumArt());
                 }
                 catch (Exception ex) { Log.e("SearchSongsFragment", ex.toString()); }
 

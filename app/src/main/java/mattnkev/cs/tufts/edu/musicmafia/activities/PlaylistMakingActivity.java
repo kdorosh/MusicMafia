@@ -22,6 +22,7 @@ import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import mattnkev.cs.tufts.edu.musicmafia.R;
+import mattnkev.cs.tufts.edu.musicmafia.SongData;
 import mattnkev.cs.tufts.edu.musicmafia.Utils;
 import mattnkev.cs.tufts.edu.musicmafia.fragments.EventPlaylistFragment;
 import mattnkev.cs.tufts.edu.musicmafia.fragments.NowPlayingFragment;
@@ -211,20 +212,28 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
     }
 
     public void seekTo(double startTime){
-        String songUri = mEventPlaylistFragment.getSongUri(0);
+        String songUri = mEventPlaylistFragment.getSongsData(0).getURI();
         if (mPlayer != null && songUri != null) {
             mPlayer.playUri(null, songUri, 0, (int) startTime);
         }
     }
 
     public int getDuration(){
-        return mEventPlaylistFragment.getDuration(0);
+        SongData data = mEventPlaylistFragment.getSongsData(0);
+        if (data != null)
+            return data.getDuration();
+        else
+            return 0;
     }
 
     public void updateAlbumArt(){
-        mNowPlayingFragment.updateCurrentSong(mEventPlaylistFragment.getAlbumArt(0), mEventPlaylistFragment.getSongName(0));
+        SongData data = mEventPlaylistFragment.getSongsData(0);
+        if (data != null) {
+            mNowPlayingFragment.updateCurrentSong(data.getAlbumArt(), data.getSongName());
+        }
     }
 
+    // called by SearchSongsFragment so that we query database after successfully adding a song
     public void queryDatabase(){
         mEventPlaylistFragment.queryDatabase();
     }

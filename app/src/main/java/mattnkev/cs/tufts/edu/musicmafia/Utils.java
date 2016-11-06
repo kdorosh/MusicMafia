@@ -152,23 +152,20 @@ public class Utils {
             JSONObject tracks = data.getJSONObject("tracks");
             JSONArray entries = tracks.getJSONArray("items");
 
-            int len = entries.length();
-            final String[] searchListViewSongs = new String[len];
-            final String[] searchListViewArtists = new String[len];
-            final String[] searchListViewURIs = new String[len];
-            final String[] searchListViewAlbumArts = new String[len];
-            final int[] searchListViewDurations = new int[len];
+            final SongData[] songsData = new SongData[entries.length()];
 
-            for (int i = 0; i < len; i++){
+            for (int i = 0; i < entries.length(); i++){
                 JSONObject entry = entries.getJSONObject(i);
-                searchListViewSongs[i] = entry.getString("name");
-                searchListViewURIs[i] = entry.getString("uri");
-                searchListViewArtists[i] = entry.getJSONObject("album").getJSONArray("artists").getJSONObject(0).getString("name");
-                searchListViewDurations[i] = Integer.parseInt(entry.getString("duration_ms"));
-                searchListViewAlbumArts[i] = entry.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url");
+                String songName = entry.getString("name");
+                String artistName = entry.getJSONObject("album").getJSONArray("artists").getJSONObject(0).getString("name");
+                String uri = entry.getString("uri");
+                String albumArt = entry.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url");
+                int duration = Integer.parseInt(entry.getString("duration_ms"));
+
+                songsData[i] = new SongData(songName, artistName, uri, albumArt, duration, 0);
+
             }
-            return new PlaylistData(searchListViewSongs, searchListViewArtists, searchListViewURIs,
-                    searchListViewAlbumArts, searchListViewDurations, null);
+            return new PlaylistData(songsData);
         }
         catch (Exception ex)
         {
@@ -197,24 +194,24 @@ public class Utils {
             if (data.getString("Status").equals("OK")) {
 
                 JSONArray songsJson = eventData.getJSONArray("songs");
-                int len = songsJson.length();
-                String[] songs = new String[len],
-                        artists = new String[len],
-                        uris = new String[len],
-                        albumArts = new String[len];
-                int[] votes = new int[len],
-                      durations = new int[len];
-                for (int i = 0; i < len; i++) {
+
+                final SongData[] songsData = new SongData[songsJson.length()];
+
+                for (int i = 0; i < songsJson.length(); i++) {
                     JSONObject songObj = songsJson.getJSONObject(i);
-                    songs[i] = songObj.getString("name");
-                    artists[i] = songObj.getString("artist");
-                    uris[i] = songObj.getString("uri");
-                    votes[i] = Integer.parseInt(songObj.getString("val"));
-                    albumArts[i] = songObj.getString("album_art");
-                    durations[i] = Integer.parseInt(songObj.getString("ms_duration"));
+
+                    String songName = songObj.getString("name");
+                    String artistName = songObj.getString("artist");
+                    String uri = songObj.getString("uri");
+                    String albumArt = songObj.getString("album_art");
+                    int duration = Integer.parseInt(songObj.getString("ms_duration"));
+                    int numVotes = Integer.parseInt(songObj.getString("val"));
+
+                    songsData[i] = new SongData(songName, artistName, uri, albumArt, duration, numVotes);
+
                 }
 
-                return new PlaylistData(songs, artists, uris, albumArts, durations, votes);
+                return new PlaylistData(songsData);
             }
             else {
                 displayMsg(faActivity, data.getString("Status"));
@@ -248,32 +245,13 @@ public class Utils {
     }
 
     public static class PlaylistData {
-        private final String[] searchListViewSongs;
-        private final String[] searchListViewArtists;
-        private final String[] searchListViewURIs;
-        private final String[] albumArts;
-        private final int[] searchListViewDurations, votes;
+        private final SongData[] songs;
 
-        private PlaylistData(String[] songsList, String[] artists, String[] uris,
-                             String[] albumArtURLs, int[] durations, int[] v) {
-            searchListViewSongs = songsList;
-            searchListViewArtists = artists;
-            searchListViewURIs = uris;
-            albumArts = albumArtURLs;
-            searchListViewDurations = durations;
-            votes = v;
+        private PlaylistData(SongData[] songDatas){
+            songs = songDatas;
         }
 
-        public String[] getSongs(){
-            return searchListViewSongs;
-        }
-        public String[] getArtists() { return searchListViewArtists; }
-        public String[] getURIs(){
-            return searchListViewURIs;
-        }
-        public String[] getAlbumArts() { return albumArts; }
-        public int[] getDurations() { return searchListViewDurations; }
-        public int[] getVotes() { return votes; }
+        public SongData[] getSongDatas(){ return songs; }
     }
 
     public static class EventData {
