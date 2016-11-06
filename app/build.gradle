@@ -54,6 +54,9 @@ dependencies {
     // bottom bar
     compile 'com.roughike:bottom-bar:2.0.2'
 
+    // volley
+    compile 'com.android.volley:volley:1.0.0'
+
     // for testing
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.2'

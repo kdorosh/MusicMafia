@@ -55,8 +55,9 @@ public class SearchSongsFragment extends Fragment {
                                 public void run() {
                                     updateListView(spotifyResp.getSongs(),
                                             spotifyResp.getArtists(),
-                                            spotifyResp.getURIs());
-
+                                            spotifyResp.getURIs(),
+                                            spotifyResp.getAlbumArts(),
+                                            spotifyResp.getDurations());
                                     mSearchView.clearFocus();
                                 }
                             });
@@ -89,7 +90,7 @@ public class SearchSongsFragment extends Fragment {
 
 
         mAdapter = new SearchSongsAdapter(faActivity.getApplicationContext(),
-                new String[0], new String[0], new String[0], new int[0]);
+                new String[0], new String[0], new String[0], new String[0], new int[0], new int[0]);
 
         if (listView != null)
             listView.setAdapter(mAdapter);
@@ -98,31 +99,38 @@ public class SearchSongsFragment extends Fragment {
         return rlLayout;
     }
 
-    private void updateListView(final String[] songs, final String[] artists, final String[] URIs){
-        mAdapter.updateValues(songs, artists, URIs);
+    private void updateListView(final String[] songs, final String[] artists, final String[] URIs,
+                                final String[] albumArts, final int[] durations){
+        mAdapter.updateValues(songs, artists, URIs, albumArts, durations);
         mAdapter.notifyDataSetChanged();
     }
 
     private class SearchSongsAdapter extends BaseAdapter {
         private final Context context;
-        private String[] songNames, artistNames, URIs;
-        private int[] colors;
+        private String[] songNames, artistNames, URIs, albumArts;
+        private int[] colors, durations;
 
-        private SearchSongsAdapter(Context context, String[] songs, String[] artists, String[] uris, int[] colors) {
+        private SearchSongsAdapter(Context context, String[] songs, String[] artists, String[] uris, String[] albums,
+                                   int[] colors, int[] songDurations) {
             super();
             this.context = context;
-            this.songNames = songs;//songNames.toArray(new String [songNames.size()]);
-            this.artistNames = artists;//artistNames.toArray(new String [artistNames.size()]);
-            this.URIs = uris;//new String[Utils.MAX_LISTVIEW_LEN];
-            this.colors = colors;//new int[songNames.size()];
+            this.songNames = songs;
+            this.artistNames = artists;
+            this.URIs = uris;
+            this.colors = colors;
+            this.durations = songDurations;
+            this.albumArts = albums;
             resetBackgroundColors();
         }
 
-        private void updateValues(String[] songNames, String[] artistNames, String[] URIs) {
+        private void updateValues(String[] songNames, String[] artistNames, String[] URIs,
+                                  String[] albums, int[] songDurations) {
             this.songNames = songNames;
             this.artistNames = artistNames;
             this.URIs = URIs;
             this.colors = new int[songNames.length];
+            this.durations = songDurations;
+            this.albumArts = albums;
         }
 
         private void setBackgroundColor(int position, int c) {
@@ -166,7 +174,8 @@ public class SearchSongsFragment extends Fragment {
 
             ImageView plusIcon = (ImageView) convertView.findViewById(R.id.plus_icon);
             plusIcon.setImageResource(R.drawable.public_domain_plus);
-            plusIcon.setOnClickListener(new PlusClickListener(songNames[position], artistNames[position], URIs[position], position));
+            plusIcon.setOnClickListener(new PlusClickListener(songNames[position], artistNames[position],
+                    URIs[position], albumArts[position], position, durations[position]));
 
             convertView.setBackgroundColor(colors[position]);
 
@@ -175,22 +184,26 @@ public class SearchSongsFragment extends Fragment {
     }
 
     private class PlusClickListener implements View.OnClickListener {
-        private final String songName, artistName, URI;
-        private final int position;
+        private final String songName, artistName, URI, albumArt;
+        private final int position, duration;
 
-        private PlusClickListener(String songName, String artistName, String uri, int pos){
+        private PlusClickListener(String songName, String artistName, String uri, String album,
+                                  int pos, int dur){
             this.songName = songName;
             this.artistName = artistName;
             this.URI = uri;
             this.position = pos;
+            this.duration = dur;
+            this.albumArt = album;
         }
 
         public void onClick(View v) {
-            addSongToServerPlaylist(songName, artistName, URI, position);
+            addSongToServerPlaylist(songName, artistName, URI, albumArt, position,  duration);
         }
     }
 
-    private void addSongToServerPlaylist(final String songName, final String artistName, final String uri, final int position){
+    private void addSongToServerPlaylist(final String songName, final String artistName, final String uri,
+                                         final String albumArt, final int position, final int duration){
         Thread thread = new Thread(new Runnable() {
 
             @Override
@@ -204,6 +217,8 @@ public class SearchSongsFragment extends Fragment {
                     songData.put("name", songName);
                     songData.put("artist", artistName);
                     songData.put("uri", uri);
+                    songData.put("ms_duration", String.valueOf(duration));
+                    songData.put("album_art", albumArt);
                 }
                 catch (Exception ex) { Log.e("SearchSongsFragment", ex.toString()); }
 
@@ -232,6 +247,8 @@ public class SearchSongsFragment extends Fragment {
                 });
 
                 if (!status.equals("OK")) { Utils.displayMsg(faActivity, status); }
+
+                ((PlaylistMakingActivity)faActivity).queryDatabase();
 
             }
         });

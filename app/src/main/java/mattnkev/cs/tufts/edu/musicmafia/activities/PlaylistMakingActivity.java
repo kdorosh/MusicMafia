@@ -2,7 +2,6 @@ package mattnkev.cs.tufts.edu.musicmafia.activities;
 
 import android.content.Intent;
 import android.support.annotation.IdRes;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -38,9 +37,9 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
     private Player mPlayer;
     private final FragmentManager mFragmentManager = getSupportFragmentManager();
-    private final Fragment mEventPlaylistFragment = new EventPlaylistFragment();
-    private final Fragment mSearchSongsFragment = new SearchSongsFragment();
-    private final Fragment mNowPlayingFragment = new NowPlayingFragment();
+    private final EventPlaylistFragment mEventPlaylistFragment = new EventPlaylistFragment();
+    private final SearchSongsFragment mSearchSongsFragment = new SearchSongsFragment();
+    private final NowPlayingFragment mNowPlayingFragment = new NowPlayingFragment();
     private BottomBar mBottomBar;
 
     // Request code that will be used to verify if the result comes from correct activity
@@ -183,6 +182,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
     @Override
     public void onLoginFailed(int i) {
+        Utils.displayMsg(PlaylistMakingActivity.this, "Log in failed; do you have premium?");
         Log.d("MainActivity", "Login failed");
     }
 
@@ -217,6 +217,43 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
             getMenuInflater().inflate(R.menu.menu_playlist_making_activity, menu);
         }
         return true;
+    }
+
+    public void playSong(){
+        String songUri = mEventPlaylistFragment.getSongUri(0);
+        if (mPlayer != null && songUri != null)
+            mPlayer.playUri(null, songUri, 0, 0);
+    }
+
+    public void pauseSong(){
+        if (mPlayer != null)
+            mPlayer.pause(null);
+    }
+
+    public long getCurrentPosition(){
+        return mPlayer != null ? mPlayer.getPlaybackState().positionMs : 0;
+    }
+
+    public void seekTo(double startTime){
+        String songUri = mEventPlaylistFragment.getSongUri(0);
+        if (mPlayer != null && songUri != null)
+            mPlayer.playUri(null, songUri, 0, (int)startTime);
+    }
+
+    public int getDuration(){
+        return mEventPlaylistFragment.getDuration(0);
+    }
+
+    public String getAlbumUrl(){
+        return mEventPlaylistFragment.getAlbumArt(0);
+    }
+
+    public void updateAlbumArt(){
+        mNowPlayingFragment.updateAlbumArt();
+    }
+
+    public void queryDatabase(){
+        mEventPlaylistFragment.queryDatabase();
     }
 
 }
