@@ -6,8 +6,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import com.roughike.bottombar.BottomBar;
@@ -203,28 +201,6 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
         mBottomBar.setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
-    public void pauseButton(MenuItem mi) {
-        if (mPlayer != null)
-            mPlayer.pause(null);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        // only add the pause button if we aren't the host
-        if (Utils.isHost(getIntent())) {
-            // Inflate the menu; this adds items to the action bar if it is present.
-            getMenuInflater().inflate(R.menu.menu_playlist_making_activity, menu);
-        }
-        return true;
-    }
-
-    public void playSong(){
-        String songUri = mEventPlaylistFragment.getSongUri(0);
-        if (mPlayer != null && songUri != null)
-            mPlayer.playUri(null, songUri, 0, 0);
-    }
-
     public void pauseSong(){
         if (mPlayer != null)
             mPlayer.pause(null);
@@ -236,20 +212,17 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
     public void seekTo(double startTime){
         String songUri = mEventPlaylistFragment.getSongUri(0);
-        if (mPlayer != null && songUri != null)
-            mPlayer.playUri(null, songUri, 0, (int)startTime);
+        if (mPlayer != null && songUri != null) {
+            mPlayer.playUri(null, songUri, 0, (int) startTime);
+        }
     }
 
     public int getDuration(){
         return mEventPlaylistFragment.getDuration(0);
     }
 
-    public String getAlbumUrl(){
-        return mEventPlaylistFragment.getAlbumArt(0);
-    }
-
     public void updateAlbumArt(){
-        mNowPlayingFragment.updateAlbumArt();
+        mNowPlayingFragment.updateCurrentSong(mEventPlaylistFragment.getAlbumArt(0), mEventPlaylistFragment.getSongName(0));
     }
 
     public void queryDatabase(){

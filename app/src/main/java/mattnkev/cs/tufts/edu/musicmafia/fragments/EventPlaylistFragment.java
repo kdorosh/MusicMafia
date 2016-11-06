@@ -65,6 +65,12 @@ public class EventPlaylistFragment extends Fragment
         return null;
     }
 
+    public String getSongName(int position){
+        if (mAdapter.songNames != null)
+            return position < mAdapter.songNames.length ? mAdapter.getSong(position) : null;
+        return null;
+    }
+
     private void updateListView(final Utils.PlaylistData playlistData){
         faActivity.runOnUiThread(new Runnable() {
             public void run() {
@@ -87,11 +93,11 @@ public class EventPlaylistFragment extends Fragment
         private String getURI(int position){
             return URIs[position];
         }
+        private String getAlbum(int position) { return albums[position]; }
+        private String getSong(int position) { return songNames[position]; }
         private int getDuration(int position){
             return mDurations[position];
         }
-        private String getAlbum(int position) { return albums[position]; }
-
 
         private EventPlaylistAdapter(Context context, String[] songs, String[] artists, String[] uris) {
             super();

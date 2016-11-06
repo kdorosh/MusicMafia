@@ -228,6 +228,25 @@ public class Utils {
         }
     }
 
+    public static void displayMsg(final Activity activity, final String status) {
+
+        if (activity != null && !activity.isFinishing()) {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage(status);
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Continue", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        // continue to activity anyways
+                    }
+                });
+                alertDialog.show();
+                }
+            });
+        }
+    }
+
     public static class PlaylistData {
         private final String[] searchListViewSongs;
         private final String[] searchListViewArtists;
@@ -274,26 +293,6 @@ public class Utils {
 
         public String getEventName() { return eventName; }
         public String getPassword() { return password; }
-    }
-
-
-    public static void displayMsg(final Activity activity, final String status) {
-
-        if (activity != null && !activity.isFinishing()) {
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                AlertDialog alertDialog = new AlertDialog.Builder(activity).create();
-                alertDialog.setTitle("Error");
-                alertDialog.setMessage(status);
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Continue", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        // continue to activity anyways
-                    }
-                });
-                alertDialog.show();
-                }
-            });
-        }
     }
 
     /* Private Utils methods */

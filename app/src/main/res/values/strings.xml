@@ -19,10 +19,11 @@
     <string name="number_up_votes">Number of Up Votes</string>
     <string name="app_label">Music Mafia</string>
     <string name="search_hint">Search for song</string>
-    <string name="pause_button_info">Pause Music</string>
     <string name="back"><![CDATA[<]]></string>
     <string name="rewind"><![CDATA[<<]]></string>
     <string name="forward"><![CDATA[>>]]></string>
     <string name="pause">||</string>
     <string name="no_song_playing">No song playing</string>
+    <string name="music_player">Music Player</string>
+    <string name="below_music_player">Currently Playing</string>
 </resources>

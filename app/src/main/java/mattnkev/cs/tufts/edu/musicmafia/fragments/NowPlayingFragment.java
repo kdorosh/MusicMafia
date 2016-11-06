@@ -16,7 +16,6 @@ import mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity;
 
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
@@ -41,12 +40,12 @@ public class NowPlayingFragment extends Fragment {
     private double startTime = 0;
     private double finalTime = 0;
 
-    private Handler myHandler = new Handler();
-    private int forwardTime = 5000;
-    private int backwardTime = 5000;
+    private final Handler myHandler = new Handler();
+    private final int forwardTime = 5000;
+    private final int backwardTime = 5000;
     private SeekBar seekbar;
-    private TextView tx1;
-    public static int oneTimeOnly = 0;
+    private TextView tx1, tx3;
+    private static int oneTimeOnly = 0;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         faActivity = super.getActivity();
@@ -64,7 +63,7 @@ public class NowPlayingFragment extends Fragment {
          mImageLoader = CustomVolleyRequestQueue.getInstance(faActivity.getApplicationContext())
                 .getImageLoader();
 
-        final TextView tx2,tx3;
+        final TextView tx2;
         tx1 = (TextView)mRLayout.findViewById(R.id.textView2);
         tx2 = (TextView)mRLayout.findViewById(R.id.textView3);
         tx3 = (TextView)mRLayout.findViewById(R.id.textView4);
@@ -77,8 +76,7 @@ public class NowPlayingFragment extends Fragment {
         b3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: remove Toast.makeText(faActivity.getApplicationContext(), "Playing sound",Toast.LENGTH_SHORT).show();
-                ((PlaylistMakingActivity)faActivity).playSong();
+                ((PlaylistMakingActivity)faActivity).seekTo(startTime);
 
                 finalTime = startTime =((PlaylistMakingActivity)faActivity).getDuration();
                 startTime =((PlaylistMakingActivity)faActivity).getCurrentPosition();
@@ -112,7 +110,6 @@ public class NowPlayingFragment extends Fragment {
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: remove Toast.makeText(faActivity.getApplicationContext(), "Pausing sound",Toast.LENGTH_SHORT).show();
                 ((PlaylistMakingActivity)faActivity).pauseSong();
                 b2.setEnabled(false);
                 b3.setEnabled(true);
@@ -125,11 +122,8 @@ public class NowPlayingFragment extends Fragment {
                 int temp = (int)startTime;
 
                 if((temp+forwardTime)<=finalTime){
-                    startTime = startTime + forwardTime;
+                    startTime += forwardTime;
                     ((PlaylistMakingActivity)faActivity).seekTo(startTime);
-                    //TODO: remove Toast.makeText(faActivity.getApplicationContext(),"You have Jumped forward 5 seconds",Toast.LENGTH_SHORT).show();
-                }else{
-                    //TODO: remove Toast.makeText(faActivity.getApplicationContext(),"Cannot jump forward 5 seconds",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -140,20 +134,33 @@ public class NowPlayingFragment extends Fragment {
                 int temp = (int)startTime;
 
                 if((temp-backwardTime)>0){
-                    startTime = startTime - backwardTime;
+                    startTime -= backwardTime;
                     ((PlaylistMakingActivity)faActivity).seekTo(startTime);
-                    //TODO: remove Toast.makeText(faActivity.getApplicationContext(),"You have Jumped backward 5 seconds",Toast.LENGTH_SHORT).show();
-                }else{
-                    //TODO: remove Toast.makeText(faActivity.getApplicationContext(),"Cannot jump backward 5 seconds",Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            //int progress = 0;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
+                startTime = progressValue;
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                ((PlaylistMakingActivity)faActivity).pauseSong();
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                ((PlaylistMakingActivity)faActivity).seekTo(startTime);
             }
         });
 
         return mRLayout;
     }
 
-    public void updateAlbumArt(){
-        String url = ((PlaylistMakingActivity)faActivity).getAlbumUrl();
+    public void updateCurrentSong(String url, String songName){
         if (url != null) {
             NetworkImageView niv = (NetworkImageView) mRLayout.findViewById(R.id.imageView);
             if (url.length() > 0)
@@ -161,9 +168,10 @@ public class NowPlayingFragment extends Fragment {
             niv.setDefaultImageResId(R.drawable.pause);
             niv.setErrorImageResId(R.drawable.pause);
         }
+        tx3.setText(songName);
     }
 
-    private Runnable UpdateSongTime = new Runnable() {
+    private final Runnable UpdateSongTime = new Runnable() {
         public void run() {
             startTime = ((PlaylistMakingActivity)faActivity).getCurrentPosition();
             tx1.setText(String.format(Locale.getDefault(), "%d min, %d sec",

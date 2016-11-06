@@ -23,7 +23,7 @@ public class CustomVolleyRequestQueue {
     private static CustomVolleyRequestQueue mInstance;
     private static Context mCtx;
     private RequestQueue mRequestQueue;
-    private ImageLoader mImageLoader;
+    private final ImageLoader mImageLoader;
 
 
     private CustomVolleyRequestQueue(Context context) {
