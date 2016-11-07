@@ -17,6 +17,9 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import org.json.JSONObject;
+
+import java.util.List;
+
 import mattnkev.cs.tufts.edu.musicmafia.R;
 import mattnkev.cs.tufts.edu.musicmafia.SongData;
 import mattnkev.cs.tufts.edu.musicmafia.Utils;
@@ -227,7 +230,13 @@ public class SearchSongsFragment extends Fragment {
 
                 if (!status.equals("OK")) { Utils.displayMsg(faActivity, status); }
 
-                ((PlaylistMakingActivity)faActivity).queryDatabase();
+                // update playlist manually after song added
+                List<Fragment> fragments = ((PlaylistMakingActivity) faActivity).getFragments();
+                for (Fragment fragment : fragments) {
+                    if (fragment instanceof EventPlaylistFragment) {
+                            ((EventPlaylistFragment) fragment).queryDatabase();
+                    }
+                }
 
             }
         });

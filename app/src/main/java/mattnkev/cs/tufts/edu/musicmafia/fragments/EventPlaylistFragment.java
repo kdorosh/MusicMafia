@@ -1,5 +1,6 @@
 package mattnkev.cs.tufts.edu.musicmafia.fragments;
 
+
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -17,6 +18,8 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import org.json.JSONObject;
+
+import java.util.List;
 
 import mattnkev.cs.tufts.edu.musicmafia.R;
 import mattnkev.cs.tufts.edu.musicmafia.SongData;
@@ -284,14 +287,24 @@ public class EventPlaylistFragment extends Fragment
                         new String[] {},
                         new String[] {});
 
-                Utils.PlaylistData playlistData = Utils.parseCurrentPlaylist(resp, faActivity);
-                if (playlistData != null)
+                final Utils.PlaylistData playlistData = Utils.parseCurrentPlaylist(resp, faActivity);
+                if (playlistData != null) {
                     updateListView(playlistData);
 
-                faActivity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        ((PlaylistMakingActivity)faActivity).updateAlbumArt();                    }
-                });
+                    // update NowPlayingFragment with new contents from pinger query
+                    faActivity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            List<Fragment> fragments = ((PlaylistMakingActivity) faActivity).getFragments();
+                            for (Fragment fragment : fragments) {
+                                if (fragment instanceof NowPlayingFragment) {
+                                    SongData[] songsData = playlistData.getSongDatas();
+                                    if (songsData != null && songsData.length > 0)
+                                        ((NowPlayingFragment) fragment).updateCurrentSong(songsData[0]);
+                                }
+                            }
+                        }
+                    });
+                }
 
 
             }

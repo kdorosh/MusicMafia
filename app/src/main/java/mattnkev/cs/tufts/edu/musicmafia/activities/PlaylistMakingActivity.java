@@ -2,6 +2,7 @@ package mattnkev.cs.tufts.edu.musicmafia.activities;
 
 import android.content.Intent;
 import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +21,8 @@ import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
+
+import java.util.List;
 
 import mattnkev.cs.tufts.edu.musicmafia.R;
 import mattnkev.cs.tufts.edu.musicmafia.SongData;
@@ -226,16 +229,17 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
             return 0;
     }
 
-    public void updateAlbumArt(){
-        SongData data = mEventPlaylistFragment.getSongsData(0);
-        if (data != null) {
-            mNowPlayingFragment.updateCurrentSong(data.getAlbumArt(), data.getSongName());
-        }
+    public SongData getCurrSongData(){
+        return mEventPlaylistFragment.getSongsData(0);
+    }
+
+    public List<Fragment> getFragments(){
+        return mFragmentManager.getFragments();
     }
 
     // called by SearchSongsFragment so that we query database after successfully adding a song
-    public void queryDatabase(){
-        mEventPlaylistFragment.queryDatabase();
-    }
+    //public void queryDatabase(){
+    //    mEventPlaylistFragment.queryDatabase();
+    //}
 
 }
