@@ -1,11 +1,14 @@
 <tabs>
     <tab
         id="@+id/event_playlist"
-        title="Event Playlist" />
+        title="Event Playlist"
+        barColorWhenSelected="@color/darkGray"/>
     <tab
         id="@+id/now_playing"
-        title="Now Playing" />
+        title="Now Playing"
+        barColorWhenSelected="@color/darkGraySlightlyLighter"/>
     <tab
         id="@+id/search_songs"
-        title="Search Songs" />
+        title="Search Songs"
+        barColorWhenSelected="@color/darkGrayLighter"/>
 </tabs>

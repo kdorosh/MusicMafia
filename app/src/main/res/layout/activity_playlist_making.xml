@@ -8,6 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin_playlists"
     android:paddingRight="@dimen/activity_horizontal_margin_playlists"
     android:paddingTop="@dimen/activity_vertical_margin_playlists"
+    android:background="@color/darkGraySlightlyLighter"
     tools:context="mattnkev.cs.tufts.edu.musicmafia.activities.PlaylistMakingActivity">
 
     <FrameLayout
@@ -22,6 +23,7 @@
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         app:bb_tabXmlResource="@xml/bottom_bar_tabs" />
+
 </RelativeLayout>
 
 

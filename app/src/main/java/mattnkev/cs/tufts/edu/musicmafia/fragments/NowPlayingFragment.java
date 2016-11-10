@@ -51,7 +51,7 @@ public class NowPlayingFragment extends Fragment {
     private final int backwardTime = 5000;
     private SeekBar seekbar;
     private TextView tx1, tx2, tx3;
-    private Button b1,b2,b3,b4;
+    private Button backButton, playPause, skipButton;
     private static int oneTimeOnly = 0;
     private String mCurrentUri;
     @Override
@@ -61,11 +61,9 @@ public class NowPlayingFragment extends Fragment {
         setHasOptionsMenu(true);
         mRLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_now_playing, container, false);
 
-
-        b1 = (Button) mRLayout.findViewById(R.id.button);
-        b2 = (Button) mRLayout.findViewById(R.id.button2);
-        b3 = (Button) mRLayout.findViewById(R.id.button3);
-        b4 = (Button) mRLayout.findViewById(R.id.button4);
+        backButton = (Button) mRLayout.findViewById(R.id.backButton);
+        playPause =  (Button) mRLayout.findViewById(R.id.playPause);
+        skipButton = (Button) mRLayout.findViewById(R.id.skipSong);
 
         // Instantiate the RequestQueue.
          mImageLoader = CustomVolleyRequestQueue.getInstance(faActivity.getApplicationContext())
@@ -78,25 +76,22 @@ public class NowPlayingFragment extends Fragment {
 
         seekbar = (SeekBar)mRLayout.findViewById(R.id.seekBar);
         seekbar.setClickable(false);
-        b2.setEnabled(false);
 
-        b3.setOnClickListener(new View.OnClickListener() {
+        playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playSong();
+                if (">".equals(playPause.getText())) {
+                    playPause.setText(R.string.pause);
+                    playSong();
+                }
+                else {
+                    playPause.setText(R.string.play);
+                    ((PlaylistMakingActivity) faActivity).pauseSong();
+                }
             }
         });
 
-        b2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((PlaylistMakingActivity)faActivity).pauseSong();
-                b2.setEnabled(false);
-                b3.setEnabled(true);
-            }
-        });
-
-        b1.setOnClickListener(new View.OnClickListener() {
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int temp = (int)startTime;
@@ -108,7 +103,7 @@ public class NowPlayingFragment extends Fragment {
             }
         });
 
-        b4.setOnClickListener(new View.OnClickListener() {
+        skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int temp = (int)startTime;
@@ -177,6 +172,8 @@ public class NowPlayingFragment extends Fragment {
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
                                     toMinutes((long) startTime)))
             );
+
+            //TODO: set progress only if not dragging the seekbar
             seekbar.setProgress((int)startTime);
             myHandler.postDelayed(this, 100);
         }
@@ -253,8 +250,7 @@ public class NowPlayingFragment extends Fragment {
         );
 
         seekbar.setProgress((int)startTime);
-        myHandler.postDelayed(UpdateSongTime,100);
-        b2.setEnabled(true);
-        b3.setEnabled(false);
+        if (oneTimeOnly == 0)
+            myHandler.postDelayed(UpdateSongTime,100);
     }
 }

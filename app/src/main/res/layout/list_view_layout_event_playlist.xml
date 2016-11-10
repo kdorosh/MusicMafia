@@ -50,7 +50,7 @@
         android:ellipsize="marquee"
         android:maxLines="1"
         android:textSize="12sp"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/offWhite"
         android:contentDescription="@string/artist_name"/>
 
     <TextView
@@ -66,6 +66,6 @@
         android:layout_alignWithParentIfMissing="true"
         android:gravity="center_vertical"
         android:textSize="16sp"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/offWhite"
         android:contentDescription="@string/song_name"/>
 </RelativeLayout>

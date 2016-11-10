@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#84bd00</color>
+    <color name="colorPrimaryDark">#608d00</color>
+    <color name="colorAccent">#84bd00</color>
+    <color name="spotifyGreen">#84bd00</color>
     <color name="darkGray">#262626</color>
+    <color name="darkGraySlightlyLighter">#2C2C2C</color>
+    <color name="darkGrayLighter">#303030</color>
+    <color name="spotifyLightGrey">#828282</color>
     <color name="red">#FF0000</color>
     <color name="green">#00FF00</color>
+    <color name="offWhite">#faebd7</color>
 </resources>

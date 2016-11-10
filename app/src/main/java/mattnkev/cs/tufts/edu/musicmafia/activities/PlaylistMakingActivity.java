@@ -237,9 +237,4 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
         return mFragmentManager.getFragments();
     }
 
-    // called by SearchSongsFragment so that we query database after successfully adding a song
-    //public void queryDatabase(){
-    //    mEventPlaylistFragment.queryDatabase();
-    //}
-
 }

@@ -7,22 +7,15 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".activities.PlaylistMakingActivity">
 
-    <TextView android:text="@string/music_player" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textview"
-        android:textSize="35sp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
     <TextView
+        android:text="@string/music_player"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/below_music_player"
         android:id="@+id/textView"
-        android:layout_below="@+id/textview"
+        android:textSize="35sp"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:textColor="#ff7aff24"
-        android:textSize="35sp" />
+        android:textColor="@color/spotifyGreen" />
 
     <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/imageView"
@@ -35,8 +28,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/forward"
-        android:id="@+id/button"
+        android:text="@string/back"
+        android:id="@+id/backButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -45,38 +38,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/pause"
-        android:id="@+id/button2"
+        android:id="@+id/playPause"
         android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/imageView"
         android:layout_alignStart="@+id/imageView" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/back"
-        android:id="@+id/button3"
-        android:layout_alignTop="@+id/button2"
-        android:layout_toRightOf="@+id/button2"
-        android:layout_toEndOf="@+id/button2" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/rewind"
-        android:id="@+id/button4"
-        android:layout_alignTop="@+id/button3"
-        android:layout_toRightOf="@+id/button3"
-        android:layout_toEndOf="@+id/button3" />
+        android:text="@string/skip"
+        android:id="@+id/skipSong"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/playPause"
+        android:layout_toRightOf="@+id/playPause"
+        android:layout_toEndOf="@+id/playPause" />
+
 
     <SeekBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/seekBar"
-        android:layout_alignLeft="@+id/textview"
-        android:layout_alignStart="@+id/textview"
-        android:layout_alignRight="@+id/textview"
-        android:layout_alignEnd="@+id/textview"
-        android:layout_above="@+id/button" />
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView"
+        android:layout_alignRight="@+id/textView"
+        android:layout_alignEnd="@+id/textView"
+        android:layout_above="@+id/playPause" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -95,8 +83,8 @@
         android:text="Small Text"
         android:id="@+id/textView3"
         android:layout_above="@+id/seekBar"
-        android:layout_alignRight="@+id/button4"
-        android:layout_alignEnd="@+id/button4" />
+        android:layout_alignRight="@+id/skipSong"
+        android:layout_alignEnd="@+id/skipSong" />
 
     <TextView
         android:layout_width="wrap_content"
