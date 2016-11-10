@@ -169,7 +169,6 @@ public class SearchSongsFragment extends Fragment {
             ImageView plusIcon = (ImageView) convertView.findViewById(R.id.plus_icon);
             plusIcon.setImageResource(R.drawable.public_domain_plus);
             plusIcon.setOnClickListener(new PlusClickListener(songsData[position], position));
-            plusIcon.setColorFilter(Color.LTGRAY);
             convertView.setBackgroundColor(colors[position]);
 
             return convertView;
