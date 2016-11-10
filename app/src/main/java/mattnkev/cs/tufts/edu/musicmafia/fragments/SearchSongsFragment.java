@@ -1,6 +1,9 @@
 package mattnkev.cs.tufts.edu.musicmafia.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -154,17 +157,19 @@ public class SearchSongsFragment extends Fragment {
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.list_view_layout_search_song, parent, false);
             }
-
+            convertView.setBackgroundColor(Color.BLACK);
             TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
             TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
-
+            songName.setTextColor(Color.WHITE);
+            songName.setTypeface(null, Typeface.BOLD);
+            artistName.setTextColor(Color.WHITE);
             songName.setText(songsData[position].getSongName());
             artistName.setText(songsData[position].getArtist());
 
             ImageView plusIcon = (ImageView) convertView.findViewById(R.id.plus_icon);
             plusIcon.setImageResource(R.drawable.public_domain_plus);
             plusIcon.setOnClickListener(new PlusClickListener(songsData[position], position));
-
+            plusIcon.setColorFilter(Color.LTGRAY);
             convertView.setBackgroundColor(colors[position]);
 
             return convertView;
