@@ -21,14 +21,12 @@ import com.android.volley.toolbox.ImageLoader;
 public class CustomVolleyRequestQueue {
 
     private static CustomVolleyRequestQueue mInstance;
-    private static Context mCtx;
     private RequestQueue mRequestQueue;
     private final ImageLoader mImageLoader;
 
 
     private CustomVolleyRequestQueue(Context context) {
-        mCtx = context;
-        mRequestQueue = getRequestQueue();
+        mRequestQueue = getRequestQueue(context);
 
         mImageLoader = new ImageLoader(mRequestQueue,
                 new ImageLoader.ImageCache() {
@@ -54,9 +52,9 @@ public class CustomVolleyRequestQueue {
         return mInstance;
     }
 
-    private RequestQueue getRequestQueue() {
+    private RequestQueue getRequestQueue(Context context) {
         if (mRequestQueue == null) {
-            Cache cache = new DiskBasedCache(mCtx.getCacheDir(), 10 * 1024 * 1024);
+            Cache cache = new DiskBasedCache(context.getCacheDir(), 10 * 1024 * 1024);
             Network network = new BasicNetwork(new HurlStack());
             mRequestQueue = new RequestQueue(cache, network);
             // Don't forget to start the volley request queue

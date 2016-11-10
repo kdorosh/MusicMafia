@@ -2,9 +2,16 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'MusicMafiaKey'
+            keyPassword 'MMkey123'
+            storeFile file('C:/GIT/musicMafia.jks')
+            storePassword 'MMkrumble1'
+        }
+    }
     compileSdkVersion 24
     buildToolsVersion "24.0.2"
-
     defaultConfig {
         applicationId "mattnkev.cs.tufts.edu.musicmafia"
         minSdkVersion 15
@@ -17,7 +24,16 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
+            jniDebuggable false
+            signingConfig signingConfigs.config
+            renderscriptDebuggable false
         }
+        debu {
+            signingConfig signingConfigs.config
+        }
+    }
+    productFlavors {
     }
     return void
 }
@@ -31,32 +47,25 @@ repositories {
 }
 
 dependencies {
-
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     testCompile 'org.json:json:20140107'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
-
     compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;
     }
-
     // This library handles authentication and authorization
     compile 'com.spotify.sdk:spotify-auth-beta23-noconnect-2.20b@aar'
     // This library handles music playback
     compile 'com.spotify.sdk:spotify-player-beta23-noconnect-2.20b@aar'
-
     // bottom bar
     compile 'com.roughike:bottom-bar:2.0.2'
-
     // volley
     compile 'com.android.volley:volley:1.0.0'
-
     // for testing
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.2'

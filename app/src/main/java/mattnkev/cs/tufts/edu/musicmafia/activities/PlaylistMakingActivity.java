@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import com.roughike.bottombar.BottomBar;
@@ -139,7 +138,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
                     @Override
                     public void onError(Throwable throwable) {
-                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
+                        Utils.displayMsg(PlaylistMakingActivity.this, "could not initialize player: " + throwable.getMessage());
                     }
                 });
             }
@@ -154,7 +153,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
     @Override
     public void onPlaybackEvent(PlayerEvent playerEvent) {
-        Log.d("MainActivity", "Playback event received: " + playerEvent.name());
+        //Utils.displayMsg(PlaylistMakingActivity.this, "Playback event received: " + playerEvent.name());
         switch (playerEvent) {
             // Handle event type as necessary
             default:
@@ -164,7 +163,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
     @Override
     public void onPlaybackError(Error error) {
-        Log.d("MainActivity", "Playback error received: " + error.name());
+        Utils.displayMsg(PlaylistMakingActivity.this, "Playback error received: " + error.name());
         switch (error) {
             // Handle error type as necessary
             default:
@@ -174,28 +173,26 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
     @Override
     public void onLoggedIn() {
-        Log.d("SpotifyTest", "User logged in");
+
     }
 
     @Override
     public void onLoggedOut() {
-        Log.d("MainActivity", "User logged out");
+
     }
 
     @Override
     public void onLoginFailed(int i) {
         Utils.displayMsg(PlaylistMakingActivity.this, "Log in failed; do you have premium?");
-        Log.d("MainActivity", "Login failed");
     }
 
     @Override
     public void onTemporaryError() {
-        Log.d("MainActivity", "Temporary error occurred");
+        Utils.displayMsg(PlaylistMakingActivity.this, "Temporary error occurred");
     }
 
     @Override
     public void onConnectionMessage(String message) {
-        Log.d("MainActivity", "Received connection message: " + message);
     }
 
     /**  END OF SPOTIFY SETUP BOILERPLATE  **/

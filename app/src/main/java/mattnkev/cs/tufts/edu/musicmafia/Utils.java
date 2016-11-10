@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Base64;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -169,7 +168,6 @@ public class Utils {
         }
         catch (Exception ex)
         {
-            Log.e("Utils: ParseSpotifyResp", ex.toString());
             return null;
         }
     }
@@ -182,7 +180,6 @@ public class Utils {
         }
         catch (Exception ex)
         {
-            Log.e("parseRespForStatus", ex.toString());
         }
         return "JSON Object \"Status\" not found:" + resp;
     }
@@ -219,7 +216,6 @@ public class Utils {
             }
         }
         catch (Exception ex) {
-            Log.e("parseAndUpdateCurrent..", ex.toString());
             displayMsg(faActivity, resp);
             return null;
         }

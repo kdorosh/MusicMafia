@@ -35,14 +35,11 @@ public class ExampleUnitTest {
 
         Utils.PlaylistData spotifyResp = Utils.parseSpotifyResp(expResp);
         if (spotifyResp != null) {
-            String[] songs = spotifyResp.getSongs();
-            String[] artists = spotifyResp.getArtists();
-            String[] uris = spotifyResp.getURIs();
-
+            SongData[] songDatas = spotifyResp.getSongDatas();
             for (int i = 0; i < EXPECTED_SONGS.length; i++) {
-                if (!songs[i].equals(EXPECTED_SONGS[i]) ||
-                        !artists[i].equals(EXPECTED_ARTISTS[i]) ||
-                        !uris[i].equals(EXPECTED_URIS[i])) {
+                if (!songDatas[i].getSongName().equals(EXPECTED_SONGS[i]) ||
+                        !songDatas[i].getArtist().equals(EXPECTED_ARTISTS[i]) ||
+                        !songDatas[i].getURI().equals(EXPECTED_URIS[i])) {
                     return false;
                 }
             }

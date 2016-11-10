@@ -2,14 +2,12 @@ package mattnkev.cs.tufts.edu.musicmafia.fragments;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -206,7 +204,7 @@ public class SearchSongsFragment extends Fragment {
                     songData.put("ms_duration", String.valueOf(song.getDuration()));
                     songData.put("album_art", song.getAlbumArt());
                 }
-                catch (Exception ex) { Log.e("SearchSongsFragment", ex.toString()); }
+                catch (Exception ex) { Utils.displayMsg(faActivity, ex.toString()); }
 
                 faActivity.runOnUiThread(new Runnable() {
                     public void run() {

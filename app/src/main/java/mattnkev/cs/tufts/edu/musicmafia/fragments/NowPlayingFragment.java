@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,10 +46,8 @@ public class NowPlayingFragment extends Fragment {
     private double finalTime = 0;
 
     private final Handler myHandler = new Handler();
-    private final int forwardTime = 5000;
-    private final int backwardTime = 5000;
     private SeekBar seekbar;
-    private TextView tx1, tx2, tx3;
+    private TextView tVcurrentTime, tVfinalTime, tVsongName;
     private Button playPause;
     private static int oneTimeOnly = 0;
     private static boolean currentlySeeking = false;
@@ -71,10 +68,10 @@ public class NowPlayingFragment extends Fragment {
          mImageLoader = CustomVolleyRequestQueue.getInstance(faActivity.getApplicationContext())
                 .getImageLoader();
 
-        tx1 = (TextView)mRLayout.findViewById(R.id.textView2);
-        tx2 = (TextView)mRLayout.findViewById(R.id.textView3);
-        tx3 = (TextView)mRLayout.findViewById(R.id.textView4);
-        if (tx3!=null) tx3.setText(R.string.no_song_playing);
+        tVcurrentTime = (TextView)mRLayout.findViewById(R.id.current_time);
+        tVfinalTime = (TextView)mRLayout.findViewById(R.id.final_time);
+        tVsongName = (TextView)mRLayout.findViewById(R.id.song_name);
+        if (tVsongName !=null) tVsongName.setText(R.string.no_song_playing);
 
         seekbar = (SeekBar)mRLayout.findViewById(R.id.seekBar);
         seekbar.setClickable(false);
@@ -127,6 +124,12 @@ public class NowPlayingFragment extends Fragment {
             }
         });
 
+        if(!Utils.isHost(faActivity.getIntent())){
+            tVcurrentTime.setEnabled(false);
+            tVsongName.setEnabled(false);
+            tVfinalTime.setEnabled(false);
+        }
+
         return mRLayout;
     }
 
@@ -144,13 +147,13 @@ public class NowPlayingFragment extends Fragment {
             niv.setErrorImageResId(R.drawable.pause);
         }
         finalTime = ((PlaylistMakingActivity)faActivity).getDuration();
-        tx2.setText(String.format(Locale.getDefault(), "%d min, %d sec",
+        tVfinalTime.setText(String.format(Locale.getDefault(), "%d min, %d sec",
                 TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
                 TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
                                 finalTime)))
         );
-        tx3.setText(data.getSongName());
+        tVsongName.setText(data.getSongName());
     }
 
     private final Runnable UpdateSongTime = new Runnable() {
@@ -162,7 +165,7 @@ public class NowPlayingFragment extends Fragment {
                 resetSongVoteTotal();
             }
             startTime = updatedTime;
-            tx1.setText(String.format(Locale.getDefault(), "%d min, %d sec",
+            tVcurrentTime.setText(String.format(Locale.getDefault(), "%d min, %d sec",
                     TimeUnit.MILLISECONDS.toMinutes((long) startTime),
                     TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
@@ -204,7 +207,6 @@ public class NowPlayingFragment extends Fragment {
                 }
                 catch (Exception ex) {
                     Utils.displayMsg(faActivity, ex.toString());
-                    Log.e("pushVoteToServer", ex.toString());
                 }
 
                 //query database for newest song to play and play it
@@ -231,14 +233,14 @@ public class NowPlayingFragment extends Fragment {
             oneTimeOnly = 1;
         }
 
-        tx2.setText(String.format(Locale.getDefault(), "%d min, %d sec",
+        tVfinalTime.setText(String.format(Locale.getDefault(), "%d min, %d sec",
                 TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
                 TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
                                 finalTime)))
         );
 
-        tx1.setText(String.format(Locale.getDefault(), "%d min, %d sec",
+        tVcurrentTime.setText(String.format(Locale.getDefault(), "%d min, %d sec",
                 TimeUnit.MILLISECONDS.toMinutes((long) startTime),
                 TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)

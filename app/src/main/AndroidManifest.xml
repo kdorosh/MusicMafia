@@ -17,18 +17,20 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "http://www.example.com/musicmafia” -->
+                <!-- Accepts URIs that begin with "http://http://mattnkev.tumblr.com/musicmafia” -->
                 <data android:scheme="http"
-                    android:host="www.example.com"
+                    android:host="http://mattnkev.tumblr.com/"
                     android:pathPrefix="/musicmafia" />
                 <!-- note that the leading "/" is required for pathPrefix-->
                 <!-- Accepts URIs that begin with "example://musicmafia” -->
-                <data android:scheme="example"
+                <data android:scheme="http://mattnkev.tumblr.com/"
                     android:host="musicmafia" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".activities.PlaylistMakingActivity"
