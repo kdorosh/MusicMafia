@@ -2,6 +2,8 @@ package mattnkev.cs.tufts.edu.musicmafia.fragments;
 
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -130,17 +132,25 @@ public class EventPlaylistFragment extends Fragment
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.list_view_layout_event_playlist, parent, false);
             }
-
+            convertView.setBackgroundColor(Color.BLACK);
             TextView songName = (TextView) convertView.findViewById(R.id.firstLine);
             TextView artistName = (TextView) convertView.findViewById(R.id.secondLine);
             TextView numberUpVotes = (TextView) convertView.findViewById(R.id.num_votes);
-
+            numberUpVotes.setTextColor(Color.WHITE);
             songName.setText(songsData[position].getSongName());
             artistName.setText(songsData[position].getArtist());
             numberUpVotes.setText(String.valueOf(songsData[position].getVotes()));
+            songName.setTextColor(Color.WHITE);
+            artistName.setTextColor(Color.WHITE);
+            songName.setTypeface(null, Typeface.BOLD);
 
             ImageView upArrowImg = (ImageView) convertView.findViewById(R.id.up_arrow);
             ImageView downArrowImg = (ImageView) convertView.findViewById(R.id.down_arrow);
+
+            upArrowImg.getLayoutParams().width = 120;
+            upArrowImg.getLayoutParams().height = 120;
+            downArrowImg.getLayoutParams().width = 120;
+            downArrowImg.getLayoutParams().height = 120;
 
             upArrowImg.setImageResource(R.drawable.public_domain_up_arrow);
             downArrowImg.setImageResource(R.drawable.public_domain_down_arrow);

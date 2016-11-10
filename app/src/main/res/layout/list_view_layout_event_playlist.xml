@@ -47,14 +47,18 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:ellipsize="marquee"
+        android:lines="1"
         android:maxLines="1"
+        android:ellipsize="marquee"
         android:textSize="12sp"
         android:textColor="@color/colorPrimary"
         android:contentDescription="@string/artist_name"/>
 
     <TextView
         android:id="@+id/firstLine"
+        android:lines="1"
+        android:maxLines="1"
+        android:ellipsize="marquee"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/secondLine"
