@@ -31,7 +31,7 @@ import java.security.SecureRandom;
 public class Utils {
     public static final String SERVER_URL = "http://52.40.236.184:5000/";
     public static final String SPOTIFY_SERVER_URL = "https://api.spotify.com/v1/";
-    public static final int PINGER_DELAY_SEC = 10;
+    public static final int PINGER_DELAY_SEC = 15;
     public static final int MIN_EVENT_NAME_LENGTH = 1;
     public static final int MIN_PASSWORD_LENGTH = 1;
 

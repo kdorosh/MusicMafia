@@ -8,7 +8,7 @@
     <color name="darkGraySlightlyLighter">#2C2C2C</color>
     <color name="darkGrayLighter">#303030</color>
     <color name="spotifyLightGrey">#828282</color>
-    <color name="red">#FF0000</color>
-    <color name="green">#00FF00</color>
+    <color name="red">#ff8282</color>
+    <color name="green">#409940</color>
     <color name="offWhite">#faebd7</color>
 </resources>

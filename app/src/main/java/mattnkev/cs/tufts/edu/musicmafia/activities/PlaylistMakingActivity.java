@@ -215,9 +215,9 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
     }
 
     public void seekTo(double startTime){
-        String songUri = mEventPlaylistFragment.getSongsData(0).getURI();
-        if (mPlayer != null && songUri != null) {
-            mPlayer.playUri(null, songUri, 0, (int) startTime);
+        SongData data = mEventPlaylistFragment.getSongsData(0);
+        if (mPlayer != null && data!= null && data.getURI() != null) {
+            mPlayer.playUri(null, data.getURI(), 0, (int) startTime);
         }
     }
 

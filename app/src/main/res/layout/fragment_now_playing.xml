@@ -40,9 +40,7 @@
         android:text="@string/pause"
         android:id="@+id/playPause"
         android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/imageView"
-        android:layout_alignStart="@+id/imageView" />
-
+        android:layout_centerInParent="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -51,10 +49,7 @@
         android:id="@+id/skipSong"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignTop="@+id/playPause"
-        android:layout_toRightOf="@+id/playPause"
-        android:layout_toEndOf="@+id/playPause" />
-
+        android:layout_alignTop="@+id/playPause" />
 
     <SeekBar
         android:layout_width="wrap_content"
@@ -70,7 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Small Text"
+        android:text=""
         android:id="@+id/textView2"
         android:layout_above="@+id/seekBar"
         android:layout_toLeftOf="@+id/textView"
@@ -80,7 +75,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Small Text"
+        android:text=""
         android:id="@+id/textView3"
         android:layout_above="@+id/seekBar"
         android:layout_alignRight="@+id/skipSong"
@@ -90,7 +85,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
+        android:text=""
         android:lines="1"
         android:maxLines="1"
         android:ellipsize="marquee"

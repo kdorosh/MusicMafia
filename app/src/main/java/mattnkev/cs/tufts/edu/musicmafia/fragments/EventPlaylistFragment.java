@@ -244,11 +244,11 @@ public class EventPlaylistFragment extends Fragment
                     final String status = Utils.parseRespForStatus(resp);
                     faActivity.runOnUiThread(new Runnable() {
                         public void run() {
-                            final int color = delta_votes == 1 ? R.color.green : R.color.red;
+                            final int color = delta_votes > 0 ? R.color.green : R.color.red;
                             if (status.equals("OK")) {
 
                                 // we've voted! cache value so we cannot vote again
-                                VOTE_STATE vote_state = delta_votes == 1 ? VOTE_STATE.UP_VOTE : VOTE_STATE.DOWN_VOTE;
+                                VOTE_STATE vote_state = delta_votes > 0 ? VOTE_STATE.UP_VOTE : VOTE_STATE.DOWN_VOTE;
                                 cachedVoteStates[position] = vote_state;
 
                                 mAdapter.setBackgroundColor(position, ContextCompat.getColor(faActivity.getApplicationContext(), color));
@@ -256,6 +256,8 @@ public class EventPlaylistFragment extends Fragment
                             } else {
                                 Utils.displayMsg(faActivity, resp);
                             }
+                            // to update with new info and update the UI post-vote
+                            queryDatabase();
                         }
                     });
                 }

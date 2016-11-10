@@ -51,8 +51,9 @@ public class NowPlayingFragment extends Fragment {
     private final int backwardTime = 5000;
     private SeekBar seekbar;
     private TextView tx1, tx2, tx3;
-    private Button backButton, playPause, skipButton;
+    private Button playPause;
     private static int oneTimeOnly = 0;
+    private static boolean currentlySeeking = false;
     private String mCurrentUri;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -61,6 +62,7 @@ public class NowPlayingFragment extends Fragment {
         setHasOptionsMenu(true);
         mRLayout = (RelativeLayout) inflater.inflate(R.layout.fragment_now_playing, container, false);
 
+        Button backButton, skipButton;
         backButton = (Button) mRLayout.findViewById(R.id.backButton);
         playPause =  (Button) mRLayout.findViewById(R.id.playPause);
         skipButton = (Button) mRLayout.findViewById(R.id.skipSong);
@@ -94,24 +96,16 @@ public class NowPlayingFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int)startTime;
-
-                if((temp+forwardTime)<=finalTime){
-                    startTime += forwardTime;
-                    ((PlaylistMakingActivity)faActivity).seekTo(startTime);
-                }
+                startTime = 0;
+                ((PlaylistMakingActivity)faActivity).seekTo(startTime);
             }
         });
 
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int)startTime;
-
-                if((temp-backwardTime)>0){
-                    startTime -= backwardTime;
-                    ((PlaylistMakingActivity)faActivity).seekTo(startTime);
-                }
+                startTime = finalTime;
+                ((PlaylistMakingActivity)faActivity).seekTo(startTime);
             }
         });
 
@@ -124,10 +118,12 @@ public class NowPlayingFragment extends Fragment {
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 ((PlaylistMakingActivity)faActivity).pauseSong();
+                currentlySeeking = true;
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 ((PlaylistMakingActivity)faActivity).seekTo(startTime);
+                currentlySeeking = false;
             }
         });
 
@@ -173,8 +169,8 @@ public class NowPlayingFragment extends Fragment {
                                     toMinutes((long) startTime)))
             );
 
-            //TODO: set progress only if not dragging the seekbar
-            seekbar.setProgress((int)startTime);
+            if (!currentlySeeking)
+                seekbar.setProgress((int)startTime);
             myHandler.postDelayed(this, 100);
         }
     };
