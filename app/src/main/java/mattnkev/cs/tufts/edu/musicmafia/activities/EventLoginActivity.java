@@ -156,12 +156,12 @@ public class EventLoginActivity extends AppCompatActivity implements LoaderCallb
 
     private boolean isEventNameValid(String eventName) {
         // Regex: String with at least 1 character where all characters are not whitespace
-        return eventName.length() > Utils.MIN_EVENT_NAME_LENGTH && eventName.matches("\\S+");
+        return eventName.length() >= Utils.MIN_EVENT_NAME_LENGTH && eventName.matches("^\\s*\\S+\\s*$");
     }
 
     private boolean isPasswordValid(String password) {
         // Regex: String with at least 1 character where all characters are not whitespace
-        return password.length() > Utils.MIN_PASSWORD_LENGTH && password.matches("\\S+");
+        return password.length() >= Utils.MIN_PASSWORD_LENGTH && password.matches("^\\s*\\S+\\s*$");
     }
 
     @Override

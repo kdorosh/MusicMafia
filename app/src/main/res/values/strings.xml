@@ -4,7 +4,7 @@
     <!-- Strings related to login -->
     <string name="prompt_email">Event Name</string>
     <string name="prompt_password">Event Password</string>
-    <string name="action_sign_in">Validate Credentials</string>
+    <string name="action_sign_in">Let\'s begin!</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_eventName">This Event ID has whitespace</string>
     <string name="error_invalid_password">This password has whitespace</string>

@@ -227,6 +227,13 @@ public class EventPlaylistFragment extends Fragment
                     songData.put("uri", mAdapter.getSongsData(position).getURI());
                     songData.put("val", delta_votes);
 
+                    final VOTE_STATE orig_vote_state = cachedVoteStates[position];
+
+                    // we've voted! cache value so we cannot vote again
+                    VOTE_STATE vote_state = delta_votes > 0 ? VOTE_STATE.UP_VOTE : VOTE_STATE.DOWN_VOTE;
+                    cachedVoteStates[position] = vote_state;
+
+                    // change color on UI to indicate vote (until it registers on server)
                     faActivity.runOnUiThread(new Runnable() {
                         public void run() {
                             mAdapter.setBackgroundColor(position,
@@ -245,14 +252,10 @@ public class EventPlaylistFragment extends Fragment
                         public void run() {
                             final int color = delta_votes > 0 ? R.color.green : R.color.red;
                             if (status.equals("OK")) {
-
-                                // we've voted! cache value so we cannot vote again
-                                VOTE_STATE vote_state = delta_votes > 0 ? VOTE_STATE.UP_VOTE : VOTE_STATE.DOWN_VOTE;
-                                cachedVoteStates[position] = vote_state;
-
                                 mAdapter.setBackgroundColor(position, ContextCompat.getColor(faActivity.getApplicationContext(), color));
                                 mAdapter.notifyDataSetChanged();
                             } else {
+                                cachedVoteStates[position] = orig_vote_state;
                                 Utils.displayMsg(faActivity, resp);
                             }
                             // to update with new info and update the UI post-vote

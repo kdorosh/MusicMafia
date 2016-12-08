@@ -43,6 +43,8 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
     private final NowPlayingFragment mNowPlayingFragment = new NowPlayingFragment();
     private BottomBar mBottomBar;
 
+    private boolean login_success = false;
+
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
     private static final int REQUEST_CODE = 1337;
@@ -57,20 +59,24 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
         mFragmentManager.beginTransaction().add(R.id.listFragment, mNowPlayingFragment).commit();
 
         if (Utils.isHost(getIntent())) {
-            AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
-                    AuthenticationResponse.Type.TOKEN,
-                    REDIRECT_URI);
-            builder.setScopes(new String[]{"user-read-private", "streaming", "playlist-read-private",
-                    "playlist-read-collaborative", "playlist-modify-public", "playlist-modify-private"});
-            AuthenticationRequest request = builder.build();
-
-            AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+            askForSpotifyCredentials();
         }
 
         mBottomBar = (BottomBar) findViewById(R.id.bottomBar);
         mBottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {
+                if (!login_success){
+                    mFragmentManager.beginTransaction()
+                            //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                            .hide(mSearchSongsFragment)
+                            .hide(mNowPlayingFragment)
+                            .show(mEventPlaylistFragment)
+                            .commit();
+                    askForSpotifyCredentials();
+                    return;
+                }
+
                 if (tabId == R.id.event_playlist) {
                     mFragmentManager.beginTransaction()
                             //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
@@ -173,7 +179,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
     @Override
     public void onLoggedIn() {
-
+        login_success = true;
     }
 
     @Override
@@ -184,6 +190,7 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
     @Override
     public void onLoginFailed(int i) {
         Utils.displayMsg(PlaylistMakingActivity.this, "Log in failed; do you have premium?");
+        login_success = false;
     }
 
     @Override
@@ -232,6 +239,17 @@ public class PlaylistMakingActivity extends AppCompatActivity implements
 
     public List<Fragment> getFragments(){
         return mFragmentManager.getFragments();
+    }
+
+    private void askForSpotifyCredentials() {
+        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
+                AuthenticationResponse.Type.TOKEN,
+                REDIRECT_URI);
+        builder.setScopes(new String[]{"user-read-private", "streaming", "playlist-read-private",
+                "playlist-read-collaborative", "playlist-modify-public", "playlist-modify-private"});
+        AuthenticationRequest request = builder.build();
+
+        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
 
 }

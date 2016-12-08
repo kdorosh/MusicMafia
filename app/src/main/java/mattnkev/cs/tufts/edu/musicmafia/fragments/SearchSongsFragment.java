@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -46,13 +47,14 @@ public class SearchSongsFragment extends Fragment {
             }
 
             public boolean onQueryTextSubmit(final String query) {
+                final String formatted_query = query.replace(" ", "%20");
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         String resp = Utils.attemptGET(Utils.SPOTIFY_SERVER_URL, "search",
                                 null, null, //eventName and password not needed for spotify query
                                 new String[]{"q", "type", "market"},
-                                new String[]{query, "track", "US"});
+                                new String[]{formatted_query, "track", "US"});
                         final Utils.PlaylistData spotifyResp = Utils.parseSpotifyResp(resp);
 
                         if (spotifyResp != null && faActivity != null) {
@@ -244,4 +246,5 @@ public class SearchSongsFragment extends Fragment {
         });
         thread.start();
     }
+
 }

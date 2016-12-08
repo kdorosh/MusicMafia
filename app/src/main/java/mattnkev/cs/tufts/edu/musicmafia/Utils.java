@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Base64;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -180,8 +181,9 @@ public class Utils {
         }
         catch (Exception ex)
         {
+            Log.e("parseRespForStatus", "invalid JSON");
         }
-        return "JSON Object \"Status\" not found:" + resp;
+        return "Invalid response from server";
     }
 
     public static PlaylistData parseCurrentPlaylist(String resp, FragmentActivity faActivity) {
